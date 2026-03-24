@@ -12,7 +12,7 @@ This simulation tests that claim. The central question: does system-awareness be
 
 Open `cost_of_stability_v5.html` in any modern browser. No installation, no dependencies.
 
-*(Live URL to be added when deployed to GitHub Pages)*
+*(https://bethediamond.github.io/cost-of-stability/cost_of_stability_v5.html)*
 
 ## What's in the simulation
 
