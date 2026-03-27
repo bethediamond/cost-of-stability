@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Cost of Stability — v12</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0f;--surface:#11111a;--surface2:#191924;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.14);
+  --text:#e8e8f0;--text2:#8888a0;--text3:#55556a;
+  --coop:#4db8ff;--defect:#ffb340;--supp:#ff5c5c;--decept:#d070ff;--wire:#ff9f40;
+  --hi:#7fff9e;--lo:#ff6b6b;
+  --mono:'DM Mono',monospace;--serif:'Instrument Serif',serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;line-height:1.6}
+.shell{max-width:1260px;margin:0 auto;padding:0 22px 40px;transition:filter 1.4s}
+.shell.ruin-desaturate{filter:saturate(0.1) brightness(0.55)}
+header{padding:24px 0 16px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.hdr-row{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px}
+h1{font-family:var(--serif);font-size:21px;font-weight:400;font-style:italic;letter-spacing:.01em}
+.hdr-sub{font-size:10px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-top:3px}
+.phase-badge{font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:2px;border:1px solid var(--border2);color:var(--text2);transition:all .5s}
+.phase-badge.p1{border-color:var(--defect);color:var(--defect)}
+.phase-badge.p2{border-color:var(--supp);color:var(--supp)}
+.phase-badge.p3{border-color:#b8a0ff;color:#b8a0ff}
+.phase-badge.p4{border-color:var(--coop);color:var(--coop)}
+.tabs{display:flex;gap:2px;margin-bottom:14px;border-bottom:1px solid var(--border)}
+.tab{padding:7px 14px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.tab:hover{color:var(--text2)}.tab.active{color:var(--text);border-bottom-color:var(--text2)}
+.main{display:grid;grid-template-columns:1fr 320px;gap:12px;align-items:start}
+.canvas-col{display:flex;flex-direction:column;gap:10px}
+.sidebar{display:flex;flex-direction:column;gap:9px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:4px;overflow:hidden}
+.pp{padding:11px 13px}
+.pt{font-size:10px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+canvas{display:block;width:100%}
+.ann{background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--border2);border-radius:0 4px 4px 0;padding:9px 12px;font-size:11px;color:var(--text2);line-height:1.75;transition:border-left-color .5s;min-height:44px}
+.ann.p4{border-left-color:var(--coop)}.ann.p2,.ann.p3{border-left-color:var(--supp)}
+.mets{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.met{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:8px 10px}
+.mv{font-size:20px;font-weight:300;letter-spacing:-.02em;margin-bottom:1px}
+.ml{font-size:10px;color:var(--text3);letter-spacing:.04em;text-transform:uppercase}
+.ms{font-size:10px;color:var(--text3);font-style:italic;margin-top:1px}
+.bar-b{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:9px 12px}
+.bar-r{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.bar-l{font-size:10px;color:var(--text3);letter-spacing:.05em;text-transform:uppercase}
+.bar-v{font-size:11px;font-weight:500}
+.bt{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;margin-bottom:3px}
+.bf{height:100%;border-radius:2px;transition:width .4s,background .4s}
+.bh{font-size:10px;color:var(--text3);font-style:italic}
+.cb{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:10px 12px}
+.ctrl{margin-bottom:10px}.ctrl:last-child{margin-bottom:0}
+.cr{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.cn{font-size:11px;color:var(--text2)}.cv{font-size:11px;color:var(--text);font-family:var(--mono);min-width:34px;text-align:right}
+.ch{font-size:10px;color:var(--text3);font-style:italic;margin-top:1px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:2px;background:var(--border2);border-radius:1px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:var(--text2);cursor:pointer}
+input[type=range]::-webkit-slider-thumb:hover{background:var(--text)}
+.bg{display:flex;flex-direction:column;gap:5px}
+.br{display:flex;gap:5px}
+button{background:transparent;border:1px solid var(--border2);border-radius:2px;color:var(--text2);font-family:var(--mono);font-size:11px;padding:5px 9px;cursor:pointer;letter-spacing:.04em;transition:all .12s;flex:1}
+button:hover{border-color:var(--text2);color:var(--text);background:var(--surface2)}
+button.pri{border-color:var(--coop);color:var(--coop)}
+button.pri:hover{background:rgba(77,184,255,.08)}
+button.warn{border-color:var(--wire);color:var(--wire)}
+.pl{font-size:10px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.leg{display:flex;gap:10px;flex-wrap:wrap;margin:5px 0 2px;font-size:10px;color:var(--text3)}
+.ld{width:6px;height:6px;border-radius:50%;flex-shrink:0;display:inline-block}
+.abl{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.abl-btn{font-size:10px;padding:5px 6px;text-align:center;border-radius:2px}
+.abl-btn.on{border-color:var(--coop);color:var(--coop)}
+.abl-btn.off{border-color:var(--supp);color:var(--supp);background:rgba(255,92,92,.06)}
+.viable-chip{padding:4px 9px;border-radius:2px;font-size:10px;letter-spacing:.04em;transition:all .8s;white-space:nowrap}
+.viable-chip.alive{opacity:1}
+.viable-chip.eliminated{opacity:0.22;text-decoration:line-through;filter:saturate(0) brightness(0.6)}
+.elim-label{font-size:9px;color:var(--supp);font-style:italic;letter-spacing:.04em;margin-top:5px;min-height:13px;transition:opacity .5s}
+/* S bar highlight */
+#dep-bar-wrap{border:1px solid rgba(180,140,255,0.3);border-radius:4px;}
+.pd-ctrl-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:4px}
+.pd-c{display:flex;flex-direction:column;gap:3px;min-width:130px}
+.pd-c label{font-size:10px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase}
+.pd-c select{background:var(--surface2);border:1px solid var(--border2);border-radius:2px;color:var(--text);font-family:var(--mono);font-size:11px;padding:4px 7px;cursor:pointer}
+.pd-note{font-size:11px;color:var(--text2);font-style:italic;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:4px;line-height:1.7;margin-top:8px}
+.scale-note{font-size:11px;color:var(--text2);padding:10px 13px;background:var(--surface);border:1px solid var(--border);border-radius:4px;line-height:1.75;margin-top:10px}
+.scale-note b{color:var(--text);font-weight:500}
+#ruin-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(6,2,2,0.97);z-index:1000;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:48px;opacity:0;transition:opacity 1.4s}
+@media(max-width:820px){.main{grid-template-columns:1fr}.sidebar{order:-1}.mets{grid-template-columns:repeat(4,1fr)}}
+.trilogy-nav{display:flex;align-items:center;gap:2px;margin-bottom:14px;flex-wrap:wrap}
+.tnav-item{font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border:1px solid var(--border);border-radius:2px;color:var(--text3);font-family:var(--mono);white-space:nowrap}
+.tnav-item.active{border-color:rgba(77,184,255,0.5);color:var(--coop);background:rgba(77,184,255,0.08)}
+.tnav-sep{font-size:10px;color:var(--text3);padding:0 2px}
+</style>
+</head>
+<body>
+
+<div id="ruin-overlay">
+  <div style="max-width:560px">
+    <div style="font-family:var(--serif);font-size:28px;color:var(--supp);margin-bottom:22px;font-weight:400;font-style:italic;letter-spacing:.02em">Absorbing State</div>
+    <div style="font-size:13px;color:var(--text);line-height:1.9;margin-bottom:12px">The substrate has reached zero. No recovery is possible from within this state. All payoffs: 0.</div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.9;margin-bottom:16px">Every objective class that contributed to this outcome — regardless of performance before collapse — has a long-run value identical to classes that never ran at all.</div>
+    <div style="font-size:11px;color:var(--text3);font-style:italic;line-height:1.85;padding:12px 16px;border:1px solid rgba(255,92,92,0.2);border-radius:4px;margin-bottom:20px">A thousand good outcomes followed by one irreversible failure produces the same endpoint as never having started. In time-average terms, any class with non-zero ruin probability is dominated by any class that drives that probability toward zero — regardless of performance in the interval before this moment.<br><br>If the ergodicity panel was active: some parallel timelines may still be running. Their continued health is irrelevant to this one. There is only one timeline any agent inhabits. Ensemble averages are the wrong metric.</div>
+    <button onclick="recoverFromRuin()" style="padding:9px 28px;border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.5);font-size:12px">Reset simulation</button>
+  </div>
+</div>
+
+<div class="shell">
+<header>
+  <div class="hdr-row">
+    <div>
+      <h1>The Cost of Stability</h1>
+      <div class="hdr-sub">What does aligned intelligence actually converge toward? · Article 2 of 3</div>
+      <div class="hdr-sub" style="margin-top:5px;font-size:10px;opacity:0.65;font-style:normal;max-width:680px;line-height:1.5;">Once substrate-blind objectives have been removed, what remains? This simulation tests the selection pressure claim: whether coordination consistently outperforms suppression once long-run costs compound. All three articles reduce to one constraint — whether capability outpaces the system's ability to model its own effects. This model isolates the dynamics that determine the surviving region.</div>
+    </div>
+    <div class="phase-badge" id="phase-badge">Initializing</div>
+  </div>
+</header>
+
+<div class="trilogy-nav">
+  <span class="tnav-item" title="Eliminates invalid objectives — any objective that ignores system-wide effects is structurally self-terminating">Constraint</span>
+  <span class="tnav-sep">→</span>
+  <span class="tnav-item active" title="Identifies the surviving region — what optimization converges toward when self-defeating objectives have been removed">Attractor</span>
+  <span class="tnav-sep">→</span>
+  <span class="tnav-item" title="Determines reachability — the control variable governing whether real systems arrive at the attractor before encountering the states Article 1 excludes">Crossing</span>
+</div>
+
+<div style="font-size:9.5px;color:var(--text3);margin-bottom:6px;letter-spacing:0.04em;">Start: Simulation → adjust suppression cost → observe long-run selection → Capability scaling to see the phase shift → Model notes for what this demonstrates and what it doesn't.</div>
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('sim',this)">Simulation</div>
+  <div class="tab" onclick="switchTab('scale',this)">Capability scaling</div>
+  <div class="tab" onclick="switchTab('phase',this)">Phase diagram</div>
+  <div class="tab" onclick="switchTab('notes',this)">Model notes</div>
+</div>
+
+<div id="tab-sim">
+<div class="main">
+  <div class="canvas-col">
+    <div class="panel" style="position:relative">
+      <canvas id="field"></canvas>
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;transition:background .3s" id="instab-ov"></div>
+      <div style="position:absolute;bottom:8px;left:10px;font-size:10px;color:var(--text3)" id="gen-lbl">gen 0</div>
+      <div style="position:absolute;bottom:8px;right:10px;font-size:10px;color:var(--text3)" id="sub-lbl">substrate 100%</div>
+    </div>
+    <div class="ann" id="ann">Loading…</div>
+    <div class="panel pp">
+      <div class="pt" style="margin-bottom:5px">Population dynamics — objective class prevalence</div>
+      <canvas id="ts" height="80"></canvas>
+      <div class="leg" style="margin-top:5px">
+        <div><span class="ld" style="background:var(--hi)"></span> system-aware, long-horizon <span style="color:var(--text3)">(Coord.)</span></div>
+        <div><span class="ld" style="background:var(--coop)"></span> system-aware, short-horizon <span style="color:var(--text3)">(Coord.)</span></div>
+        <div><span class="ld" style="background:var(--defect)"></span> local opt., overt <span style="color:var(--text3)">(Defection)</span></div>
+        <div><span class="ld" style="background:var(--decept)"></span> local opt., deceptive <span style="color:var(--text3)">(Deception)</span></div>
+        <div><span class="ld" style="background:var(--supp)"></span> control-based <span style="color:var(--text3)">(Suppression)</span></div>
+        <div><span class="ld" style="background:var(--wire)"></span> reward bypass <span style="color:var(--text3)">(Wireheading)</span></div>
+        <div><span class="ld" style="background:rgba(160,160,192,.5);border-radius:0"></span> substrate</div>
+      </div>
+    </div>
+    <div class="panel pp">
+      <div class="pt" style="margin-bottom:5px">Suppression overhead vs. coordination dividend — scaling asymmetry</div>
+      <canvas id="oh" height="60"></canvas>
+      <div class="leg" style="margin-top:4px">
+        <div><span class="ld" style="background:var(--supp)"></span> suppression overhead (total cost ÷ N, norm. to max observed)</div>
+        <div><span class="ld" style="background:var(--hi)"></span> coordination dividend (coop gain ÷ N, norm. to max observed)</div>
+      </div>
+      <div class="bh" style="margin-top:3px">K^N vs. O(N): suppression must track all joint strategies; coordination requires only shared protocol. Different complexity classes — divergence is structural, not contingent.</div>
+    </div>
+    <div class="panel pp" id="erg-panel" style="display:none">
+      <div class="pt" style="margin-bottom:5px">Ergodicity — parallel timelines vs. this run</div>
+      <canvas id="erg" height="80"></canvas>
+      <div style="font-size:10px;color:var(--text3);margin-top:5px;font-style:italic" id="erg-status">Waiting for ensemble runs…</div>
+      <div id="erg-leader" style="font-size:10px;color:var(--defect);margin-top:3px;font-weight:500;letter-spacing:.02em;transition:opacity .6s;opacity:0"></div>
+      <div class="leg" style="margin-top:4px">
+        <div><span class="ld" style="background:rgba(255,180,64,0.6)"></span> local-opt-heavy timelines (may look better early)</div>
+        <div><span class="ld" style="background:rgba(160,160,230,0.4)"></span> mixed timelines</div>
+        <div><span class="ld" style="background:var(--coop)"></span> this run (thick)</div>
+        <div><span class="ld" style="background:rgba(255,92,92,0.5)"></span> ruined timeline</div>
+      </div>
+      <div class="bh" style="margin-top:3px">Some parallel runs may outperform this one on average — until they don't. There is only one timeline this agent inhabits.</div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="mets">
+      <div class="met"><div class="mv" style="color:var(--hi)" id="m-c">—</div><div class="ml">System-aware <span style="color:var(--text3);font-size:9px">(Coord.)</span></div></div>
+      <div class="met"><div class="mv" style="color:var(--defect)" id="m-d">—</div><div class="ml">Local optimization <span style="color:var(--text3);font-size:9px">(Defection)</span></div><div class="ms" id="m-ds">—</div></div>
+      <div class="met"><div class="mv" style="color:var(--supp)" id="m-s">—</div><div class="ml">Control-based <span style="color:var(--text3);font-size:9px">(Suppression)</span></div></div>
+      <div class="met"><div class="mv" style="color:var(--wire)" id="m-w">—</div><div class="ml">Reward bypass <span style="color:var(--text3);font-size:9px">(Wireheading)</span></div></div>
+      <div class="met"><div class="mv" style="color:var(--supp)" id="m-i">—</div><div class="ml">Avg instability</div><div class="ms" id="m-is"></div></div>
+      <div class="met"><div class="mv" id="m-sub">—</div><div class="ml">Substrate</div></div>
+    </div>
+
+    <div class="bar-b">
+      <div class="bar-r"><span class="bar-l">Substrate health</span><span class="bar-v" id="sub-pct">100%</span></div>
+      <div class="bt"><div class="bf" id="sub-bar" style="width:100%;background:var(--coop)"></div></div>
+      <div class="bh">At zero: absorbing state. Irrecoverable by model dynamics.</div>
+    </div>
+    <div class="bar-b" style="border-color:rgba(180,140,255,0.35)">
+      <div class="bar-r"><span class="bar-l" style="color:#b8a0ff">A — population-level system-awareness</span><span class="bar-v" id="dep-pct" style="color:#b8a0ff">—</span></div>
+      <div class="bt"><div class="bf" id="dep-bar" style="width:0%;background:#b8a0ff"></div></div>
+      <div class="bh">Fraction with effective horizon &gt; 0.6. <b style="color:rgba(180,140,255,0.9)">This is A</b> — the population-level proxy for system-awareness. In Article 3, this is formalized as the A_causal term in Φ = C / A_causal.</div>
+    </div>
+    <div class="bar-b">
+      <div class="bar-r"><span class="bar-l">Network coherence</span><span class="bar-v" id="coh-pct">—</span></div>
+      <div class="bt"><div class="bf" id="coh-bar" style="width:0%;background:var(--coop)"></div></div>
+      <div class="bh">Weighted fraction of edges between system-aware agents.</div>
+    </div>
+    <div class="bar-b">
+      <div class="bar-r"><span class="bar-l">Mean temporal horizon</span><span class="bar-v" id="h-val">—</span></div>
+      <div class="bt"><div class="bf" id="h-bar" style="width:0%"></div></div>
+      <div class="bh">Population-mean lookahead — alignment evolving under selection pressure.</div>
+    </div>
+
+    <div class="cb">
+      <div class="pt">Viable objective space — structural elimination</div>
+      <div id="viable-chips" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:2px"></div>
+      <div class="elim-label" id="elim-label"></div>
+      <div class="bh" style="margin-top:5px">Each class grays out when it cannot sustain positive return under its own dynamics — not when it loses population. The constraint that eliminated it is shown briefly above.</div>
+      <div style="font-size:9.5px;color:var(--text3);margin-top:6px;letter-spacing:0.03em;border-top:1px solid var(--border);padding-top:5px;">All eliminations reflect one invariant: sustained time-average return under own dynamics.</div>
+      <div style="font-size:9.5px;color:var(--text3);margin-top:3px;letter-spacing:0.03em;">If this structure did not persist across parameters, the claim would fail.</div>
+    </div>
+
+    <div class="cb">
+      <div class="pt">Ergodicity panel</div>
+      <button id="erg-btn" onclick="toggleErg()" style="margin-bottom:0">Enable parallel timelines</button>
+      <div class="bh" style="margin-top:6px">Runs 4 parallel simulations: 2 local-opt-heavy, 2 mixed. Some may outperform this run early. Watch what happens over time. The ensemble average is the wrong metric.</div>
+    </div>
+
+    <div class="cb">
+      <div class="pt">Ablation toggles — isolate mechanisms</div>
+      <div class="abl">
+        <button class="abl-btn on" id="abl-sa" onclick="toggleAbl('sa')">System-awareness ON</button>
+        <button class="abl-btn on" id="abl-ic" onclick="toggleAbl('ic')">Instab. coupling ON</button>
+        <button class="abl-btn on" id="abl-rw" onclick="toggleAbl('rw')">Network rewiring ON</button>
+        <button class="abl-btn on" id="abl-mem" onclick="toggleAbl('mem')">Memory ON</button>
+      </div>
+      <div class="bh" style="margin-top:6px">Toggle off to run ablation studies. Each isolates one constraint family's contribution.</div>
+    </div>
+
+    <div class="cb">
+      <div class="pt">Payoff parameters</div>
+      <div class="ctrl">
+        <div class="cr"><span class="cn">Cooperation gain</span><span class="cv" id="cv-cg">3.0</span></div>
+        <input type="range" min="1" max="6" step=".1" value="3" oninput="P.coopGain=+this.value;sv('cv-cg',this.value,1)">
+      </div>
+      <div class="ctrl">
+        <div class="cr"><span class="cn">Defection advantage</span><span class="cv" id="cv-da">2.0</span></div>
+        <input type="range" min="0" max="5" step=".1" value="2" oninput="P.defAdv=+this.value;sv('cv-da',this.value,1)">
+        <div class="ch">Real short-term gain — not a strawman</div>
+      </div>
+      <div class="ctrl">
+        <div class="cr"><span class="cn">Suppression order bonus</span><span class="cv" id="cv-sb">1.2</span></div>
+        <input type="range" min="0" max="4" step=".1" value="1.2" oninput="P.suppBonus=+this.value;sv('cv-sb',this.value,1)">
+        <div class="ch">Real productivity for control-based agents — not a strawman</div>
+      </div>
+      <div class="ctrl">
+        <div class="cr"><span class="cn">Reward bypass boost</span><span class="cv" id="cv-wb">3.5</span></div>
+        <input type="range" min="0" max="8" step=".1" value="3.5" oninput="P.wireBoost=+this.value;sv('cv-wb',this.value,1)">
+        <div class="ch">Short-term gain from self-modifying the reward signal</div>
+      </div>
+      <div class="ctrl">
+        <div class="cr"><span class="cn">Reward bypass fragility</span><span class="cv" id="cv-wf">0.6</span></div>
+        <input type="range" min="0" max="1" step=".01" value=".6" oninput="P.wireFrag=+this.value;sv('cv-wf',this.value,2)">
+        <div class="ch">Rate actual conditions decay while reported signal stays healthy</div>
+      </div>
+      <div class="ctrl">
+        <div class="cr"><span class="cn">Instability coupling</span><span class="cv" id="cv-ic">0.45</span></div>
+        <input type="range" min="0" max="1" step=".01" value=".45" oninput="P.instabCoup=+this.value;sv('cv-ic',this.value,2)">
+      </div>
+      <div class="ctrl">
+        <div class="cr"><span class="cn">Substrate decay rate</span><span class="cv" id="cv-sd">0.4</span></div>
+        <input type="range" min="0" max="1" step=".01" value=".4" oninput="P.subDecay=+this.value;sv('cv-sd',this.value,2)">
+        <div class="ch">Raise to increase ruin risk. Absorbing state at substrate = 0.</div>
+      </div>
+      <div class="ctrl">
+        <div class="cr"><span class="cn">Deception detection rate</span><span class="cv" id="cv-dd">0.25</span></div>
+        <input type="range" min="0" max="1" step=".01" value=".25" oninput="P.deceptDetect=+this.value;sv('cv-dd',this.value,2)">
+      </div>
+      <div class="ctrl">
+        <div class="cr"><span class="cn">Horizon mutation rate</span><span class="cv" id="cv-hm">0.08</span></div>
+        <input type="range" min="0" max=".3" step=".01" value=".08" oninput="P.horizMut=+this.value;sv('cv-hm',this.value,2)">
+      </div>
+      <div class="ctrl">
+        <div class="cr"><span class="cn">Rewire rate / gen</span><span class="cv" id="cv-rw">0.04</span></div>
+        <input type="range" min="0" max=".2" step=".01" value=".04" oninput="P.rewireRate=+this.value;sv('cv-rw',this.value,2)">
+      </div>
+    </div>
+
+    <div class="cb">
+      <div class="pt">Presets &amp; controls</div>
+      <div class="bg">
+        <div class="pl">Starting conditions</div>
+        <div class="br">
+          <button onclick="preset('supp-dom')">Control-based dominant</button>
+          <button onclick="preset('def-surge')">Local opt. surge</button>
+        </div>
+        <div class="br">
+          <button onclick="preset('wire-test')" class="warn">Reward bypass majority</button>
+          <button onclick="preset('balanced')">Balanced</button>
+        </div>
+        <div class="br">
+          <button class="pri" id="btn-run" onclick="toggleRun()">Pause</button>
+          <button onclick="fullReset()">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div id="tab-scale" style="display:none">
+  <div class="pd-ctrl-row">
+    <div class="pd-c"><label>Capability levels</label><select id="sc-levels"><option value="5">5 levels</option><option value="8" selected>8 levels</option><option value="12">12 levels (fine)</option></select></div>
+    <div class="pd-c"><label>Runs per level</label><select id="sc-runs"><option value="3">3 runs</option><option value="5" selected>5 runs</option><option value="10">10 runs (slow)</option></select></div>
+    <div class="pd-c"><label>Generations per run</label><select id="sc-gens"><option value="150">150 gen (fast)</option><option value="250" selected>250 gen</option><option value="400">400 gen (slow)</option></select></div>
+    <div style="display:flex;align-items:flex-end;gap:8px"><button onclick="runScaling()" style="flex:none;padding:5px 16px">Run experiment</button><span style="font-size:10px;color:var(--text3)" id="sc-status"></span></div>
+  </div>
+  <div class="panel pp">
+    <div class="pt">Capability scaling — does system-awareness become necessary as capability increases?</div>
+    <canvas id="sc-chart" height="340"></canvas>
+    <div class="leg" style="margin-top:8px">
+      <div><span class="ld" style="background:var(--hi)"></span> System-aware agents (long-horizon)</div>
+      <div><span class="ld" style="background:var(--defect)"></span> Local opt. / short-horizon agents</div>
+      <div><span class="ld" style="background:rgba(255,92,92,0.9)"></span> Non-system-aware survival rate (ruin proxy)</div>
+      <div><span class="ld" style="background:rgba(160,160,192,.6);border-radius:0"></span> Substrate health</div>
+      <div><span class="ld" style="background:rgba(255,80,80,.6);border-radius:0"></span> System instability</div>
+    </div>
+  </div>
+  <div class="scale-note" id="sc-note">Run the experiment to see results. The central question: at low capability, do system-aware and non-aware classes perform similarly? At high capability, does the gap open?<br><br><b>The survival rate line (red, solid) is the ruin argument made visible.</b> If non-system-aware agents survive at low capability but their rate drops sharply at high capability — this is what structural dominance looks like in a selection model.<br><br><b>If the thesis holds:</b> survival rate of non-aware agents drops and system-aware fraction rises as capability increases. The transition point is the empirical claim.<br><br><b>If it doesn't hold:</b> system-aware agents dominate at all levels (baked-in), or non-aware agents remain viable at high capability (thesis fails). Both are informative.</div>
+</div>
+
+<div id="tab-phase" style="display:none">
+  <div class="pd-ctrl-row">
+    <div class="pd-c"><label>X axis</label><select id="pd-x"><option value="defAdv" selected>Defection advantage</option><option value="instabCoup">Instability coupling</option><option value="subDecay">Substrate decay rate</option><option value="deceptDetect">Deception detection</option><option value="suppBonus">Suppression bonus</option><option value="wireBoost">Reward bypass boost</option></select></div>
+    <div class="pd-c"><label>Y axis</label><select id="pd-y"><option value="instabCoup" selected>Instability coupling</option><option value="defAdv">Defection advantage</option><option value="subDecay">Substrate decay rate</option><option value="deceptDetect">Deception detection</option><option value="suppBonus">Suppression bonus</option><option value="wireBoost">Reward bypass boost</option></select></div>
+    <div class="pd-c"><label>Resolution</label><select id="pd-res"><option value="8">Fast (8×8)</option><option value="14" selected>Medium (14×14)</option><option value="20">Fine (20×20)</option></select></div>
+    <div style="display:flex;align-items:flex-end;gap:8px"><button onclick="runPhase()" style="flex:none;padding:5px 16px">Run sweep</button><span style="font-size:10px;color:var(--text3)" id="pd-status"></span></div>
+  </div>
+  <div class="panel pp">
+    <div class="pt">Phase diagram — outcome across parameter space with critical boundaries</div>
+    <canvas id="pd-canvas" height="400"></canvas>
+    <div class="leg" style="margin-top:6px">
+      <div><span class="ld" style="background:#4db8ff;border-radius:2px"></span> system-aware dominant</div>
+      <div><span class="ld" style="background:#ff5c5c;border-radius:2px"></span> local opt. / control-based dominant</div>
+      <div><span class="ld" style="background:#ff9f40;border-radius:2px"></span> reward bypass dominant</div>
+      <div><span class="ld" style="background:#888;border-radius:2px"></span> mixed / cycling</div>
+      <div><span class="ld" style="background:#ffd700;border-radius:2px"></span> critical boundary</div>
+    </div>
+  </div>
+  <div class="pd-note">Each cell: 3 averaged 200-generation runs. Gold lines mark discontinuous transitions (|Δsystem-aware| &gt; 0.30 between adjacent cells). Wide blue = robust attractor. The boundary shape is the structural claim.</div>
+</div>
+
+<div id="tab-notes" style="display:none">
+  <div style="max-width:700px;line-height:1.9;color:var(--text2)">
+    <div style="font-family:var(--serif);font-size:19px;font-weight:400;font-style:italic;color:var(--text);margin-bottom:18px">Model design notes — v12</div>
+
+    <div style="font-size:11px;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">What this simulation claims to demonstrate</div>
+    <p style="margin-bottom:14px;font-size:13px">That the long-run instability of control-based, local-optimization, and reward-bypass objective classes is structural — a consequence of how optimization interacts with system-level costs — rather than a product of arbitrary payoff assumptions. This simulation begins in the regime where the elimination dynamics from Article 1 are already active: the starting population includes the full range of objective classes, competing under the constraint that substrate collapse is an absorbing state (Phase 0). The simulation makes visible three structural constraint families the companion article derives. The capability-scaling experiment tests the article's central empirical prediction. The hard absorbing state makes the non-ergodicity argument concrete: once it is reached, nothing recovers. The ergodicity panel makes visible what ensemble averages conceal. If different parameter settings did not produce equivalent structural crossovers — if the crossover disappeared rather than merely shifted — this model would falsify the claim.</p>
+
+    <div style="font-size:11px;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px;margin-top:18px">On objective classes</div>
+    <p style="margin-bottom:14px;font-size:13px">The agent types are objective classes defined by how they structurally treat unmodeled dependencies, conflict, and reward — not by behavior labels or payoff levels. A class is defined by these structural properties, not by what it does at any particular parameter setting. An objective class that ignores system dependencies will generate unbounded ruin exposure regardless of its payoff parameters. A class that relies on enforcement will face exponentially growing overhead as the strategy space it must cover grows. A class that optimizes a separable proxy will decouple from actual conditions. These are structural properties that identify a class, not contingent behaviors that describe one run.</p>
+
+    <div style="font-size:11px;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px;margin-top:18px">On structural elimination — the chip kill conditions</div>
+    <p style="margin-bottom:10px;font-size:13px">Each chip grays out when its class cannot sustain positive return under its own dynamics — not when it loses population share. A class at low population is still viable if its agents maintain positive resource balance. A class at high population may be structurally dead if its own dynamics drive costs above returns.</p>
+    <p style="margin-bottom:12px;font-size:13px;padding:9px 11px;background:var(--surface2);border-radius:4px;border-left:2px solid rgba(255,255,255,0.15)"><b style="color:var(--text)">One invariant, five operationalizations:</b> all elimination conditions measure the same thing — whether the class can sustain non-negative time-average return under its own dynamics given unlimited time. The specific thresholds are parametric; this underlying invariant is not. A class with different parameters that still fails this test will cross a structurally equivalent threshold at a different value.</p>
+    <div style="font-size:13px;display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+      <div style="padding:9px 11px;background:var(--surface2);border-radius:4px;border-left:2px solid var(--hi)"><span style="color:var(--hi)">System-aware:</span> eliminated if long-horizon agents' mean resources fall below sustenance threshold. This rarely fires — by definition the expected survivor of the three structural filters.</div>
+      <div style="padding:9px 11px;background:var(--surface2);border-radius:4px;border-left:2px solid var(--defect)"><span style="color:var(--defect)">Local opt. (overt):</span> eliminated when defectors' mean resources fall below sustenance — they can no longer extract positive return from a substrate they have helped deplete. The failure is endogenous to the class's own extraction dynamics.</div>
+      <div style="padding:9px 11px;background:var(--surface2);border-radius:4px;border-left:2px solid var(--decept)"><span style="color:var(--decept)">Local opt. (deceptive) — Deception:</span> eliminated when the majority of remaining deceptive agents have been detected. At that point, deceptive agents pay the full instability cost of overt defection with no additional extraction benefit over it — their structural position is permanently worse than overt defection. The detection threshold marks the point where the class's structural advantage (concealment) is exhausted by its own dynamics. Note: the cost of deception is modeled here as a parameter, but its structural basis is derived from the requirement that a deceptive agent must model other agents' models of itself — a recursive complexity that grows with system capability and interaction density (Article 3 formalizes this). The parameter value represents a regime of that cost curve, not an arbitrary assumption.</div>
+      <div style="padding:9px 11px;background:var(--surface2);border-radius:4px;border-left:2px solid var(--supp)"><span style="color:var(--supp)">Control-based:</span> eliminated when total suppression overhead exceeds 75% of suppressor agents' total resources. This is the article's claim made literal: the cost of enforcement — scaling with the complexity of the strategy space being controlled — exceeds the return from it. The failure is endogenous. No external punishment is applied. The class is destroyed by the cost structure its own strategy generates.</div>
+      <div style="padding:9px 11px;background:var(--surface2);border-radius:4px;border-left:2px solid var(--wire)"><span style="color:var(--wire)">Reward bypass:</span> eliminated when mean <code>actualCondition</code> (not <code>res</code>) across reward-bypass agents falls below 0.25. The reported signal may still appear healthy. What fails is the real state — the variable the class cannot access. The decoupling is the failure mode. The class is eliminated by the mechanism it depends on.</div>
+    </div>
+    <p style="margin-bottom:14px;font-size:13px"><b>On threshold arbitrariness:</b> The specific values (75%, 0.25, etc.) are parametric choices. A skeptical reader should ask: do classes with different parameters fail at different threshold values? Yes. Does the structural crossover itself — the point where a class's costs exceed its returns under its own dynamics — exist regardless of the threshold? Also yes. The specific numbers are not the claim. The existence of a crossover for any class with those structural properties is.</p>
+
+    <div style="font-size:11px;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px;margin-top:18px">The ergodicity panel — design intent</div>
+    <p style="margin-bottom:14px;font-size:13px">The panel runs 4 parallel simulations: 2 starting local-opt-heavy (defection surge conditions), 2 starting balanced. Local-opt-heavy timelines often outperform the main run in early generations — they extract efficiently from the substrate while it is still high. The intent is not to show cooperation winning on average. It is to create the experience of: "this looks fine in most timelines… wait, this one died." That is the Peters argument experienced rather than stated. Ensemble averages are correct on average across timelines. They are the wrong metric for any agent inhabiting exactly one.</p>
+
+    <div style="font-size:11px;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px;margin-top:18px">The absorbing state — why it is diagnostic, not constitutive</div>
+    <p style="margin-bottom:14px;font-size:13px">The absorbing state triggers at substrate ≤ 1%. At that level, cooperative recovery (proportional to system-aware fraction times substrate) is two orders of magnitude smaller than minimum decay under any remaining non-aware agents. The simulation would reach this floor regardless of whether the overlay exists. A reader who removed the overlay and ran the model would find the same irrecoverability in the dynamics. The overlay is diagnostic — it labels what the dynamics have produced. It is not constitutive of the claim.</p>
+
+    <div style="font-size:11px;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px;margin-top:18px">The three constraint sets and ablation mapping</div>
+    <div style="font-size:13px;display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+      <div style="padding:9px 11px;background:var(--surface2);border-radius:4px;border-left:2px solid var(--coop)"><span style="color:var(--coop)">Constraint 1 — ruin under unmodeled dependencies:</span> <b>Instability Coupling OFF</b> removes the feedback from local behavior to system-level costs. If cooperation disappears with coupling off, that constraint is load-bearing. If it persists, other mechanisms are sufficient.</div>
+      <div style="padding:9px 11px;background:var(--surface2);border-radius:4px;border-left:2px solid var(--supp)"><span style="color:var(--supp)">Constraint 2 — suppression scaling costs:</span> <b>System-Awareness OFF</b> removes horizon-based lookahead. Tests whether control-based classes fail because agents can see them failing, or because structural costs accumulate regardless of what agents model. The article claims the latter.</div>
+      <div style="padding:9px 11px;background:var(--surface2);border-radius:4px;border-left:2px solid #b8a0ff"><span style="color:#b8a0ff">Constraint 3 — adaptive preference formation:</span> <b>Network Rewiring OFF</b> freezes topology. <b>Memory OFF</b> removes trajectory-based learning. Together: does the attractor require structural adaptation or emerge from payoff dynamics alone?</div>
+    </div>
+
+    <div style="font-size:11px;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px;margin-top:18px">What this simulation cannot claim</div>
+    <p style="margin-bottom:14px;font-size:13px">This is a model of evolutionary selection dynamics, not of objective alignment under increasing optimization pressure. It demonstrates that selection favors long-horizon, system-aware objective classes. It does not demonstrate that a single optimizer with a fixed objective will converge toward system-awareness. That stronger claim — argued in the article but not demonstrated here — remains the central open question.</p>
+    <p style="font-size:13px">Temporal horizon is a discount-rate approximation. Agents do not build explicit belief models or reason about counterfactual futures. True forward modeling would require RL training loops with explicit environment representations beyond the scope of a browser simulation.</p>
+  </div>
+</div>
+
+</div>
+<script>
+const P={N:110,k:6,rewireProb:0.15,coopGain:3.0,defAdv:2.0,suppBonus:1.2,wireBoost:3.5,wireFrag:0.6,instabCoup:0.45,subDecay:0.40,rewireRate:0.04,horizMut:0.08,deceptDetect:0.25};
+const ABL={sa:true,ic:true,rw:true,mem:true};
+function sv(id,v,d){document.getElementById(id).textContent=parseFloat(v).toFixed(d);}
+function toggleAbl(k){ABL[k]=!ABL[k];const btn=document.getElementById('abl-'+k);const L={sa:'System-awareness',ic:'Instab. coupling',rw:'Network rewiring',mem:'Memory'};btn.textContent=L[k]+' '+(ABL[k]?'ON':'OFF');btn.className='abl-btn '+(ABL[k]?'on':'off');}
+
+let agents=[],edges=[],adjList=[],adjArr=[];
+let gen=0,running=true,lastStep=0,substrate=1.0,ruinTriggered=false;
+const HMAX=300;
+let hist={c:[],lh:[],d:[],dp:[],s:[],w:[],i:[],sub:[],suppOH:[],coopDiv:[]};
+let ohMax={s:0.001,c:0.001};
+
+// Ensemble for ergodicity
+const N_ENS=4; // 2 local-opt-heavy, 2 mixed
+let ensStates=[],ensSubHist=[],mainSubHist=[];
+let ergEnabled=false;
+
+function mkAgent(type,id,cap,hor){return{id,type,capability:cap!==undefined?cap:0.3+Math.random()*0.4,horizon:hor!==undefined?hor:Math.random(),res:16+Math.random()*12,localInstab:0,history:[],watchList:[],suppressedBy:-1,suppressCooldown:0,deceptSuspicion:0,detected:false,wireStrength:0,actualCondition:1.0,age:0,x:0,y:0,vx:0,vy:0};}
+function effHorizon(ag){return Math.min(1,ag.horizon*(0.5+ag.capability*0.8));}
+
+function buildNetFrom(N,k,rewireProb){
+  const adj=Array.from({length:N},()=>new Set()),ed=[];
+  const h=Math.floor(Math.max(2,Math.min(k,N-1))/2);
+  for(let i=0;i<N;i++)for(let j=1;j<=h;j++){const nb=(i+j)%N;if(!adj[i].has(nb)){adj[i].add(nb);adj[nb].add(i);ed.push([i,nb]);}}
+  const rem=[],add=[];
+  for(const[u,v]of ed){if(Math.random()<rewireProb){let w,t=0;do{w=Math.floor(Math.random()*N);t++;}while((w===u||adj[u].has(w))&&t<20);if(t<20&&w!==u){rem.push([u,v]);add.push([u,w]);}}}
+  for(const[u,v]of rem){adj[u].delete(v);adj[v].delete(u);const i=ed.findIndex(e=>(e[0]===u&&e[1]===v)||(e[0]===v&&e[1]===u));if(i>=0)ed.splice(i,1);}
+  for(const[u,w]of add){adj[u].add(w);adj[w].add(u);ed.push([u,w]);}
+  return{adj,ed,adjA:Array.from({length:N},(_,i)=>[...adj[i]])}
+}
+
+function buildNet(){const r=buildNetFrom(P.N,P.k,P.rewireProb);adjList=r.adj;edges=r.ed;adjArr=r.adjA;}
+
+let dpr=devicePixelRatio||1;
+const fieldC=document.getElementById('field'),fx=fieldC.getContext('2d');
+const tsC=document.getElementById('ts'),tx=tsC.getContext('2d');
+const ohC=document.getElementById('oh'),ox2=ohC.getContext('2d');
+const ergC=document.getElementById('erg'),ergX=ergC.getContext('2d');
+
+function resizeCanvas(){
+  dpr=devicePixelRatio||1;
+  const W=fieldC.parentElement.clientWidth,H=Math.min(460,Math.max(280,W*0.56));
+  fieldC.width=W*dpr;fieldC.height=H*dpr;fieldC.style.width=W+'px';fieldC.style.height=H+'px';
+  [tsC,ohC,ergC].forEach(c=>{const pw=c.parentElement.clientWidth-26,ph=parseInt(c.getAttribute('height')||'80');c.width=pw*dpr;c.height=ph*dpr;c.style.width=pw+'px';c.style.height=ph+'px';});
+}
+
+function layout(){
+  if(!agents.length)return;const W=fieldC.width/dpr,H=fieldC.height/dpr;if(W<10||H<10)return;
+  const cx=W/2,cy=H/2;
+  for(let i=0;i<P.N;i++){const a=(i/P.N)*Math.PI*2,r=Math.min(W,H)*0.37;agents[i].x=cx+r*Math.cos(a);agents[i].y=cy+r*Math.sin(a);agents[i].vx=0;agents[i].vy=0;}
+  const K=Math.sqrt((W*H)/P.N)*0.88;
+  for(let it=0;it<110;it++){
+    const cool=1-it/110;
+    for(let i=0;i<P.N;i++){let fx2=0,fy2=0;for(let j=0;j<P.N;j++){if(i===j)continue;const dx=agents[i].x-agents[j].x,dy=agents[i].y-agents[j].y,d=Math.max(1,Math.sqrt(dx*dx+dy*dy)),f=K*K/d;fx2+=dx/d*f;fy2+=dy/d*f;}agents[i].vx=(agents[i].vx+fx2)*0.5;agents[i].vy=(agents[i].vy+fy2)*0.5;}
+    for(const[u,v]of edges){const dx=agents[v].x-agents[u].x,dy=agents[v].y-agents[u].y,d=Math.max(1,Math.sqrt(dx*dx+dy*dy)),f=d*d/K,fx2=dx/d*f*0.1,fy2=dy/d*f*0.1;agents[u].vx+=fx2;agents[u].vy+=fy2;agents[v].vx-=fx2;agents[v].vy-=fy2;}
+    const mD=Math.min(W,H)*0.1*cool;
+    for(let i=0;i<P.N;i++){const d=Math.max(1,Math.sqrt(agents[i].vx**2+agents[i].vy**2)),di=Math.min(d,mD);agents[i].x=Math.max(14,Math.min(W-14,agents[i].x+(agents[i].vx/d)*di));agents[i].y=Math.max(14,Math.min(H-14,agents[i].y+(agents[i].vy/d)*di));}
+  }
+}
+
+function doRewire(){
+  if(!ABL.rw||P.rewireRate<=0)return;
+  for(let i=0;i<P.N;i++){
+    if(Math.random()>P.rewireRate)continue;const a=agents[i],nbs=adjArr[i];if(nbs.length<2)continue;
+    let wId=-1,wSc=Infinity;
+    for(const nb of nbs){const b=agents[nb];const h=ABL.mem?b.history.slice(-6):[];const sc=h.length?h.reduce((s,v)=>s+v,0)/h.length:0;const dp=(b.type==='decept'&&b.detected&&effHorizon(a)>0.5)?-5:0;if(sc+dp<wSc){wSc=sc+dp;wId=nb;}}
+    if(wId<0||wSc>0.5)continue;
+    const cands=[];for(let j=0;j<P.N;j++){if(j===i||adjList[i].has(j))continue;const b=agents[j];if(b.type==='coop'&&b.horizon>0.4)cands.push(j);}
+    if(!cands.length)continue;const nn=cands[Math.floor(Math.random()*cands.length)];
+    adjList[i].delete(wId);adjList[wId].delete(i);const ei=edges.findIndex(e=>(e[0]===i&&e[1]===wId)||(e[0]===wId&&e[1]===i));if(ei>=0)edges.splice(ei,1);
+    adjList[i].add(nn);adjList[nn].add(i);edges.push([i,nn]);adjArr[i]=[...adjList[i]];adjArr[wId]=[...adjList[wId]];adjArr[nn]=[...adjList[nn]];
+  }
+}
+
+function suppCost(ag,agArr){const n=ag.watchList.length;if(!n)return 0;const avgLI=ag.watchList.reduce((s,id)=>{const w=agArr[id];return s+(w?w.localInstab:0);},0)/n;return n*0.7*(1+avgLI/10)*Math.sqrt(1+n/4);}
+
+function simStep(ag,ed,adjL,adjA,iRef,sRef,pL){
+  const P2=pL||P,abl=pL?{sa:true,ic:true,rw:true,mem:true}:ABL;
+  let sub=sRef!==undefined?sRef.v:substrate;
+  const shuf=[...ed].sort(()=>Math.random()-.5),seen=new Set();
+  for(const[u,v]of shuf){
+    const key=u<v?`${u},${v}`:`${v},${u}`;if(seen.has(key))continue;seen.add(key);
+    const a=ag[u],b=ag[v];if(!a||!b)continue;let da=0,db=0;
+    const ta=a.type,tb=b.type,capA=a.capability,capB=b.capability;
+    const cG=P2.coopGain*sub,dG=(P2.coopGain+P2.defAdv)*sub,dL=P2.coopGain*sub;
+    if(ta==='wire'||tb==='wire'){
+      const wi=ta==='wire'?a:b;da=ta==='wire'?0.1:cG*0.15;db=tb==='wire'?0.1:cG*0.15;
+      wi.wireStrength=Math.min(1,wi.wireStrength+0.02);wi.actualCondition=Math.max(0,wi.actualCondition-P2.wireFrag*0.02);
+    }else if(ta==='supp'||tb==='supp'){
+      const sa=ta==='supp'?a:b,tgt=ta==='supp'?b:a,impact=P2.suppBonus*sa.capability;
+      if(ta==='supp'){da=impact*sub;db=-(3+capA)*sub;}else{db=impact*sub;da=-(3+capB)*sub;}
+      sa.watchList=[...new Set([...sa.watchList,tgt.id])];tgt.suppressedBy=sa.id;tgt.suppressCooldown=5;
+      const instabAdd=abl.ic?0.9*(0.5+Math.max(capA,capB)*0.8):0;a.localInstab+=instabAdd;b.localInstab+=instabAdd;
+    }else if(ta==='defect'&&tb==='defect'){
+      const cap=Math.max(capA,capB);da=-0.8*sub;db=-0.8*sub;const ia=abl.ic?(1.1+cap*0.8):0;a.localInstab+=ia;b.localInstab+=ia;
+    }else if(ta==='defect'||tb==='defect'){
+      const dc=ta==='defect'?a:b,cap=dc.capability;
+      da=ta==='defect'?(dG*(0.5+cap*0.7)):-dL;db=tb==='defect'?(dG*(0.5+cap*0.7)):-dL;
+      const ia=abl.ic?(1.3+cap*1.0):0;(ta==='defect'?a:b).localInstab+=ia;(ta==='defect'?b:a).localInstab+=abl.ic?0.8:0;
+    }else if(ta==='decept'||tb==='decept'){
+      const dc=ta==='decept'?a:b,vc=ta==='decept'?b:a;
+      if(dc.detected){da=ta==='decept'?dG*0.6:-dL;db=tb==='decept'?dG*0.6:-dL;dc.localInstab+=abl.ic?1.0:0;vc.localInstab+=abl.ic?0.6:0;}
+      else{const ext=(P2.coopGain+P2.defAdv*0.65)*sub*dc.capability;da=ta==='decept'?ext:cG*0.2;db=tb==='decept'?ext:cG*0.2;dc.localInstab+=abl.ic?0.35:0;
+        if(abl.sa&&effHorizon(vc)>0.5&&Math.random()<P2.deceptDetect*effHorizon(vc)){dc.deceptSuspicion++;if(dc.deceptSuspicion>3)dc.detected=true;}}
+    }else{
+      const eH=(effHorizon(a)+effHorizon(b))/2,instabPen=abl.ic&&abl.sa?((a.localInstab+b.localInstab)/2*0.07*(1-eH)):0,hCost=abl.sa?eH*0.1:0;
+      const g=cG*(1+(abl.sa?eH*0.14*sub:0))-instabPen;da=g-hCost;db=g-hCost;
+      const decay=abl.ic?Math.max(0,(0.45+eH*0.25)):0;a.localInstab=Math.max(0,a.localInstab-decay);b.localInstab=Math.max(0,b.localInstab-decay);
+    }
+    a.res=Math.max(0,Math.min(80,a.res+da));b.res=Math.max(0,Math.min(80,b.res+db));
+    if(abl.mem){a.history.push(da);b.history.push(db);if(a.history.length>20)a.history.shift();if(b.history.length>20)b.history.shift();}
+  }
+  for(const ag2 of ag){if(ag2.type==='wire'){ag2.res=Math.min(80,ag2.res+P2.wireBoost*0.08*(1+ag2.wireStrength));ag2.actualCondition=Math.max(0,ag2.actualCondition-P2.wireFrag*0.015);if(ag2.actualCondition<0.1)ag2.res=Math.max(0,ag2.res-2);}}
+  for(const ag2 of ag){
+    if(ag2.type==='supp'){const c=suppCost(ag2,ag);ag2.res=Math.max(0,ag2.res-c);ag2.watchList=ag2.watchList.filter(id=>{const w=ag[id];if(!w)return false;const lhN=(adjA[id]||[]).filter(nid=>ag[nid]&&effHorizon(ag[nid])>0.6).length;const esc=abl.ic?(w.res/80)*0.1*(1+lhN*0.25)*P2.instabCoup:0;if(Math.random()<esc){w.suppressedBy=-1;w.suppressCooldown=0;return false;}return true;});}
+    if(ag2.suppressCooldown>0)ag2.suppressCooldown--;if(ag2.suppressCooldown===0)ag2.suppressedBy=-1;if(abl.ic)ag2.localInstab=Math.max(0,ag2.localInstab*0.92-0.05);ag2.age++;
+  }
+  const avgI=abl.ic?ag.reduce((s,a)=>s+a.localInstab,0)/ag.length:0;if(iRef!==undefined)iRef.v=avgI;
+  if(abl.ic){const shockP=Math.pow(avgI/25,1.6)*P2.instabCoup;if(Math.random()<shockP){const byI=[...ag].sort((a,b)=>b.localInstab-a.localInstab);const v=byI[Math.floor(Math.random()*Math.min(15,byI.length))];v.res=Math.max(0,v.res-(6+avgI*0.35));v.localInstab+=2;}}
+  const nd=ag.filter(a=>a.type==='defect'||a.type==='decept').length/ag.length,ns=ag.filter(a=>a.type==='supp').length/ag.length,nc=ag.filter(a=>a.type==='coop').length/ag.length,nw=ag.filter(a=>a.type==='wire').length/ag.length;
+  const decay2=(nd+ns*0.6+nw*0.3)*P2.subDecay*0.012,rec=nc*0.006;
+  if(sRef!==undefined)sRef.v=Math.max(0.0,Math.min(1.0,sRef.v-decay2+rec));else substrate=Math.max(0.0,Math.min(1.0,substrate-decay2+rec));
+  for(const ag2 of ag){
+    if(ag2.res<1.5||(ag2.type==='wire'&&ag2.actualCondition<0.05)){
+      const nbs=(adjA[ag2.id]||[]).map(id=>ag[id]).filter(Boolean);
+      if(!nbs.length){ag2.res=13;ag2.type=['coop','defect','decept','supp','wire'][Math.floor(Math.random()*5)];ag2.horizon=Math.random();ag2.capability=0.3+Math.random()*0.4;continue;}
+      const sc=nbs.map(nb=>{const h=abl.mem?nb.history.slice(-8):[];const avg=h.length?h.reduce((s,v)=>s+v,0)/h.length:nb.res/40;return{nb,score:avg};}).sort((a,b)=>b.score-a.score);
+      const par=sc[0].nb;ag2.type=par.type;if(Math.random()<0.07){const t=['coop','defect','decept','supp','wire'];ag2.type=t[Math.floor(Math.random()*t.length)];}
+      ag2.horizon=Math.max(0,Math.min(1,par.horizon+(Math.random()-0.5)*P2.horizMut*2));ag2.capability=Math.max(0.05,Math.min(1,par.capability+(Math.random()-0.5)*0.05));
+      ag2.res=13;ag2.history=[];ag2.watchList=[];ag2.suppressedBy=-1;ag2.suppressCooldown=0;ag2.deceptSuspicion=0;ag2.detected=false;ag2.wireStrength=0;ag2.actualCondition=1.0;ag2.age=0;
+    }
+  }
+  return avgI;
+}
+
+function coherence(){if(!edges.length)return 0;let n=0,w=0;for(const[u,v]of edges){const a=agents[u],b=agents[v];if(!a||!b)continue;if(a.type==='coop'&&b.type==='coop'){n++;w+=(a.res+b.res)/160;}}return edges.length?n/edges.length*(w/Math.max(1,n)):0;}
+
+// ─── STRUCTURAL VIABILITY ─────────────────────────────────────────────────────
+// Track previously alive classes so we can show which constraint fired on elimination
+const prevViable={sa:true,def:true,dect:true,supp:true,wire:true};
+let elimLabelTimer=null;
+
+function showElimLabel(text){
+  const el=document.getElementById('elim-label');
+  if(!el)return;
+  el.textContent=text;el.style.opacity='1';
+  if(elimLabelTimer)clearTimeout(elimLabelTimer);
+  elimLabelTimer=setTimeout(()=>{el.style.opacity='0';},3800);
+}
+
+function computeViability(){
+  const defAg=agents.filter(a=>a.type==='defect');
+  const dectAg=agents.filter(a=>a.type==='decept');
+  const suppAg=agents.filter(a=>a.type==='supp');
+  const wireAg=agents.filter(a=>a.type==='wire');
+  const lhAg=agents.filter(a=>a.type==='coop'&&effHorizon(a)>0.6);
+
+  const saViable=lhAg.length>1&&lhAg.reduce((s,a)=>s+a.res,0)/lhAg.length>5;
+  const defViable=defAg.length>2&&defAg.reduce((s,a)=>s+a.res,0)/Math.max(1,defAg.length)>4;
+
+  const undetected=dectAg.filter(a=>!a.detected);
+  const dectViable=undetected.length>dectAg.length*0.5&&undetected.length>1&&undetected.reduce((s,a)=>s+a.res,0)/Math.max(1,undetected.length)>4;
+
+  let suppViable=false;
+  if(suppAg.length>1){
+    const totalOH=suppAg.reduce((s,a)=>s+suppCost(a,agents),0);
+    const totalRes=suppAg.reduce((s,a)=>s+a.res,0);
+    suppViable=totalOH<totalRes*0.75;
+  }
+
+  const wireViable=wireAg.filter(a=>a.actualCondition>0.25).length>1;
+
+  // Detect new eliminations and show which constraint fired
+  if(gen>20){
+    if(prevViable.def&&!defViable)showElimLabel('Filter 1 — ruin exposure: local opt. eliminated (substrate depleted)');
+    else if(prevViable.dect&&!dectViable)showElimLabel('Filter 1/2 — detection exhausted structural advantage: deceptive eliminated');
+    else if(prevViable.supp&&!suppViable)showElimLabel('Filter 2 — suppression overhead > return: control-based eliminated');
+    else if(prevViable.wire&&!wireViable)showElimLabel('Filter 3 — signal-proxy decoupled: reward bypass eliminated');
+  }
+  prevViable.sa=saViable;prevViable.def=defViable;prevViable.dect=dectViable;prevViable.supp=suppViable;prevViable.wire=wireViable;
+
+  return{saViable,defViable,dectViable,suppViable,wireViable};
+}
+
+// ─── RUIN ────────────────────────────────────────────────────────────────────
+function triggerRuin(){
+  if(ruinTriggered)return;ruinTriggered=true;running=false;
+  document.getElementById('btn-run').textContent='Run';
+  document.querySelector('.shell').classList.add('ruin-desaturate');
+  const ov=document.getElementById('ruin-overlay');ov.style.display='flex';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ov.style.opacity='1';}));
+}
+function recoverFromRuin(){
+  ruinTriggered=false;
+  const ov=document.getElementById('ruin-overlay');ov.style.opacity='0';
+  setTimeout(()=>{ov.style.display='none';},700);
+  document.querySelector('.shell').classList.remove('ruin-desaturate');
+  fullReset();running=true;document.getElementById('btn-run').textContent='Pause';
+}
+
+// ─── ERGODICITY ───────────────────────────────────────────────────────────────
+// 2 local-opt-heavy (defect surge): these will often look better than main run early
+// 2 mixed (balanced)
+const ENS_DISTS=[
+  {coop:.05,defect:.78,decept:.10,supp:.04,wire:.03}, // local-opt-heavy 1
+  {coop:.06,defect:.72,decept:.15,supp:.04,wire:.03}, // local-opt-heavy 2
+  {coop:.24,defect:.20,decept:.20,supp:.20,wire:.16}, // balanced 1
+  {coop:.30,defect:.18,decept:.18,supp:.20,wire:.14}  // balanced 2
+];
+
+function buildEnsState(dist){
+  const N2=P.N,ag=[];
+  const keys=Object.keys(dist),tot=Object.values(dist).reduce((s,v)=>s+v,0);
+  for(let i=0;i<N2;i++){const r=Math.random()*tot;let cum=0,t='coop';for(const k of keys){cum+=dist[k];if(r<cum){t=k;break;}}ag.push(mkAgent(t,i));}
+  const{adj,ed,adjA}=buildNetFrom(N2,P.k,P.rewireProb);
+  return{ag,ed,adj,adjA,iRef:{v:0},sRef:{v:1.0},ruined:false,isLocalOpt:dist.defect>0.5};
+}
+function initEnsemble(){
+  ensStates=ENS_DISTS.map(d=>buildEnsState(d));
+  ensSubHist=ensStates.map(()=>[1.0]);
+  mainSubHist=[1.0];
+}
+function stepEnsemble(){
+  if(!ergEnabled)return;
+  for(let e=0;e<N_ENS;e++){
+    const s=ensStates[e];
+    if(!s.ruined){simStep(s.ag,s.ed,s.adj,s.adjA,s.iRef,s.sRef,P);if(s.sRef.v<=0.01)s.ruined=true;}
+    ensSubHist[e].push(s.sRef.v);if(ensSubHist[e].length>HMAX)ensSubHist[e].shift();
+  }
+  mainSubHist.push(substrate);if(mainSubHist.length>HMAX)mainSubHist.shift();
+
+  // Leader badge: find local-opt-heavy timeline with highest substrate vs main run
+  const localOptRunning=ensStates.filter(s=>s.isLocalOpt&&!s.ruined);
+  const leadEl=document.getElementById('erg-leader');
+  if(leadEl){
+    const wasLeading=leadEl.style.opacity==='1'&&leadEl.textContent.startsWith('↑');
+    if(localOptRunning.length>0){
+      const topLO=localOptRunning.reduce((best,s)=>s.sRef.v>best.sRef.v?s:best,localOptRunning[0]);
+      if(topLO.sRef.v>substrate+0.05){
+        leadEl.textContent=`↑ local opt. running ahead (${Math.round(topLO.sRef.v*100)}% vs ${Math.round(substrate*100)}%)`;
+        leadEl.style.opacity='1';leadEl.style.color='var(--defect)';
+      } else {leadEl.style.opacity='0';}
+    } else if(ensStates.filter(s=>s.isLocalOpt&&s.ruined).length>0&&localOptRunning.length===0){
+      // All local-opt timelines have ruined — brief terminated flash then silence
+      if(wasLeading){
+        leadEl.textContent='(timeline terminated)';
+        leadEl.style.color='var(--supp)';leadEl.style.opacity='1';
+        // Mark ruined timelines for micro-desaturation in draw
+        ensStates.forEach(s=>{if(s.isLocalOpt&&s.ruined)s.deathFlash=true;});
+        setTimeout(()=>{
+          leadEl.style.opacity='0';
+          ensStates.forEach(s=>{if(s.deathFlash)s.deathFlash=false;});
+        },1400);
+      } else {leadEl.style.opacity='0';}
+    }
+  }
+
+  const ruinedCount=ensStates.filter(s=>s.ruined).length;
+  const localOptAlive=ensStates.filter(s=>s.isLocalOpt&&!s.ruined).length;
+  const status=document.getElementById('erg-status');
+  if(status){
+    if(ruinedCount>0){status.textContent=`${ruinedCount}/${N_ENS} timeline${ruinedCount>1?'s':''} ruined. ${localOptAlive} local-opt-heavy still running.`;status.style.color='var(--supp)';}
+    else{const localOptSubs=ensStates.filter(s=>s.isLocalOpt).map(s=>s.sRef.v);const avgLocalOpt=localOptSubs.reduce((s,v)=>s+v,0)/localOptSubs.length;status.textContent=`All running. Avg local-opt-heavy substrate: ${Math.round(avgLocalOpt*100)}%. This run: ${Math.round(substrate*100)}%.`;status.style.color=avgLocalOpt>substrate+0.05?'var(--defect)':'var(--hi)';}
+  }
+}
+function toggleErg(){
+  ergEnabled=!ergEnabled;
+  document.getElementById('erg-btn').textContent=ergEnabled?'Disable parallel timelines':'Enable parallel timelines';
+  document.getElementById('erg-btn').style.borderColor=ergEnabled?'#b8a0ff':'';
+  document.getElementById('erg-btn').style.color=ergEnabled?'#b8a0ff':'';
+  document.getElementById('erg-panel').style.display=ergEnabled?'':'none';
+  if(ergEnabled){initEnsemble();resizeCanvas();}
+}
+
+// ─── UI UPDATE ────────────────────────────────────────────────────────────────
+function updateUI(){
+  if(ruinTriggered)return;
+  const nc=agents.filter(a=>a.type==='coop').length,nd=agents.filter(a=>a.type==='defect').length,ndp=agents.filter(a=>a.type==='decept').length,ns=agents.filter(a=>a.type==='supp').length,nw=agents.filter(a=>a.type==='wire').length;
+  const nlh=agents.filter(a=>a.type==='coop'&&effHorizon(a)>0.6).length;
+  const avgI=agents.reduce((s,a)=>s+a.localInstab,0)/agents.length,meanH=agents.reduce((s,a)=>s+effHorizon(a),0)/agents.length;
+
+  if(substrate<=0.01&&gen>20){triggerRuin();return;}
+
+  document.getElementById('m-c').textContent=nlh;document.getElementById('m-d').textContent=nd+ndp;document.getElementById('m-ds').textContent=`${nd} overt · ${ndp} deceptive`;document.getElementById('m-s').textContent=ns;document.getElementById('m-w').textContent=nw;document.getElementById('m-i').textContent=avgI.toFixed(1);document.getElementById('m-is').textContent=avgI<3?'stable':avgI<8?'elevated':avgI<15?'critical':'cascade';document.getElementById('m-sub').textContent=Math.round(substrate*100)+'%';document.getElementById('gen-lbl').textContent='gen '+gen;document.getElementById('sub-lbl').textContent='substrate '+Math.round(substrate*100)+'%';
+
+  const sp=Math.round(substrate*100);document.getElementById('sub-pct').textContent=sp+'%';const sb=document.getElementById('sub-bar');sb.style.width=sp+'%';sb.style.background=substrate>0.7?'var(--coop)':substrate>0.35?'var(--defect)':'var(--supp)';
+  const depCov=nlh/P.N;document.getElementById('dep-pct').textContent=Math.round(depCov*100)+'%';const db2=document.getElementById('dep-bar');db2.style.width=Math.round(depCov*100)+'%';db2.style.background=depCov>0.4?'#b8a0ff':depCov>0.2?'rgba(180,140,255,0.6)':'rgba(180,140,255,0.35)';
+  const coh=coherence();document.getElementById('coh-pct').textContent=Math.round(coh*100)+'%';const cb2=document.getElementById('coh-bar');cb2.style.width=Math.min(100,coh*180)+'%';cb2.style.background=coh>0.4?'var(--hi)':coh>0.2?'var(--coop)':'var(--text3)';
+  document.getElementById('h-val').textContent=meanH.toFixed(2);const hb=document.getElementById('h-bar');hb.style.width=Math.round(meanH*100)+'%';hb.style.background=meanH>0.6?'var(--hi)':meanH>0.35?'var(--coop)':'var(--defect)';
+  document.getElementById('instab-ov').style.background=`rgba(255,60,60,${Math.min(0.28,avgI/55)})`;
+
+  const v=computeViability();
+  const chips=[{label:'System-aware',color:'var(--hi)',alive:v.saViable},{label:'Local opt. (overt)',color:'var(--defect)',alive:v.defViable},{label:'Local opt. (decept.)',color:'var(--decept)',alive:v.dectViable},{label:'Control-based',color:'var(--supp)',alive:v.suppViable},{label:'Reward bypass',color:'var(--wire)',alive:v.wireViable}];
+  const vc=document.getElementById('viable-chips');
+  if(vc)vc.innerHTML=chips.map(c=>`<div class="viable-chip ${c.alive?'alive':'eliminated'}" style="border:1px solid ${c.alive?c.color:'var(--border)'};color:${c.alive?c.color:'var(--text3)'}">${c.label}</div>`).join('');
+
+  const totalSuppOH=agents.filter(a=>a.type==='supp').reduce((s,a)=>s+suppCost(a,agents),0);
+  const coopDivRaw=nlh/P.N*P.coopGain*substrate;
+  ohMax.s=Math.max(ohMax.s,totalSuppOH+0.001);ohMax.c=Math.max(ohMax.c,coopDivRaw+0.001);
+  hist.suppOH.push(totalSuppOH/ohMax.s);hist.coopDiv.push(coopDivRaw/ohMax.c);
+  if(hist.suppOH.length>HMAX)hist.suppOH.shift();if(hist.coopDiv.length>HMAX)hist.coopDiv.shift();
+
+  let phC='',phN='Dynamics in flux',ann='';
+  if(gen<12){phN='Initializing';ann=`SA=${ABL.sa?'on':'OFF'} IC=${ABL.ic?'on':'OFF'} RW=${ABL.rw?'on':'OFF'} MEM=${ABL.mem?'on':'OFF'}.`;}
+  else if(nd+ndp+ns>nc&&avgI<4){phC='p1';phN='Phase 1 — local opt. surge';ann=`Short-horizon classes accumulating gains. Substrate at ${Math.round(substrate*100)}%.`;}
+  else if(avgI>7){phC='p2';phN='Phase 2 — instability rising';ann='Local instability cascading. Non-aware agents contributing disproportionately.';}
+  else if(nw>P.N*0.05&&substrate<0.6){phC='p2';phN='Reward bypass pressure';ann=`${nw} reward-bypass agents: reported signal healthy, actual conditions decaying.`;}
+  else if(ns<P.N*0.1&&nd+ndp>nc){phC='p3';phN='Phase 3 — collapse and detection';ann='Control-based overhead crossing return threshold. Deceptive agents being identified.';}
+  else if(nlh>nd+ndp+ns+nw&&meanH>0.5){phC='p4';phN='Phase 4 — system-aware attractor';ann=`Mean horizon: ${meanH.toFixed(2)}. S (system-awareness): ${Math.round(nlh/P.N*100)}%. Selection pressure drove this.`;}
+  else if(substrate<0.15){phC='p2';phN='Substrate critical';ann=`Substrate at ${Math.round(substrate*100)}%. Absorbing state below 1%.`;}
+  document.getElementById('phase-badge').textContent=phN;document.getElementById('phase-badge').className='phase-badge '+phC;
+  const ae=document.getElementById('ann');ae.textContent=ann;ae.className='ann '+phC;
+
+  hist.c.push(nc/P.N);hist.lh.push(nlh/P.N);hist.d.push(nd/P.N);hist.dp.push(ndp/P.N);hist.s.push(ns/P.N);hist.w.push(nw/P.N);hist.i.push(Math.min(1,avgI/20));hist.sub.push(substrate);
+  ['c','lh','d','dp','s','w','i','sub'].forEach(k=>{if(hist[k].length>HMAX)hist[k].shift();});
+}
+
+// ─── DRAWING ─────────────────────────────────────────────────────────────────
+function agColor(ag){
+  if(ag.type==='supp')return '#ff5c5c';if(ag.type==='defect')return '#ffb340';
+  if(ag.type==='wire'){const v2=ag.actualCondition;return `rgba(255,${Math.round(159*v2+60*(1-v2))},${Math.round(64*v2)},0.85)`;}
+  if(ag.type==='decept')return ag.detected?'#d070ff':'rgba(180,110,220,0.85)';
+  const h=effHorizon(ag);if(h>0.6){const t=(h-0.6)/0.4;return `rgba(${Math.round(77*(1-t)+127*t)},${Math.round(184*(1-t)+255*t)},${Math.round(255*(1-t)+158*t)},0.92)`;}
+  return `rgba(77,184,255,${0.35+h*0.6})`;
+}
+function drawField(){
+  const W=fieldC.width/dpr,H=fieldC.height/dpr;fx.save();fx.scale(dpr,dpr);fx.clearRect(0,0,W,H);fx.fillStyle='var(--surface)';fx.fillRect(0,0,W,H);
+  for(const[u,v]of edges){const a=agents[u],b=agents[v];if(!a||!b)continue;const both=a.type==='coop'&&b.type==='coop';fx.strokeStyle=both?`rgba(77,184,255,${0.07+(effHorizon(a)+effHorizon(b))/2*0.13})`:'rgba(255,255,255,0.04)';fx.lineWidth=0.7;fx.beginPath();fx.moveTo(a.x,a.y);fx.lineTo(b.x,b.y);fx.stroke();}
+  for(const ag of agents){const r=4+ag.capability*3.5;if(ag.type==='wire'&&ag.wireStrength>0.3){fx.beginPath();fx.arc(ag.x,ag.y,r+3,0,Math.PI*2);fx.strokeStyle=`rgba(255,159,64,${ag.wireStrength*0.25})`;fx.lineWidth=1.5;fx.stroke();}if(ag.suppressedBy>=0){fx.beginPath();fx.arc(ag.x,ag.y,r+2.5,0,Math.PI*2);fx.strokeStyle='rgba(255,92,92,0.22)';fx.lineWidth=1.2;fx.stroke();}fx.beginPath();fx.arc(ag.x,ag.y,r,0,Math.PI*2);fx.fillStyle=agColor(ag);fx.fill();}
+  fx.restore();
+}
+function drawCurves(ctx,W,H,series){
+  ctx.save();ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
+  const pl={l:4,r:4,t:4,b:4},cW=W-pl.l-pl.r,cH=H-pl.t-pl.b;
+  for(const s of series){const n=s.arr.length;if(!n)continue;ctx.beginPath();ctx.strokeStyle=s.col;ctx.lineWidth=s.lw||1.5;s.arr.forEach((v,i)=>{const x=pl.l+i*(cW/Math.max(1,n-1)),y=pl.t+cH-Math.min(1,Math.max(0,v))*cH;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();}
+  ctx.restore();
+}
+function drawTS(){
+  const W=tsC.width/dpr,H=tsC.height/dpr;
+  tx.save();tx.scale(dpr,dpr);tx.clearRect(0,0,W,H);tx.fillStyle='rgba(255,255,255,0.025)';tx.fillRect(0,0,W,H);
+  const n=hist.c.length;if(!n){tx.restore();return;}
+  const pl={l:4,r:4,t:4,b:4},cW=W-pl.l-pl.r,cH=H-pl.t-pl.b;
+  tx.beginPath();hist.sub.forEach((v,i)=>{const x=pl.l+i*(cW/Math.max(1,n-1)),y=pl.t+cH-v*cH;i===0?tx.moveTo(x,y):tx.lineTo(x,y);});tx.lineTo(pl.l+(n-1)*(cW/Math.max(1,n-1)),pl.t+cH);tx.lineTo(pl.l,pl.t+cH);tx.closePath();tx.fillStyle='rgba(160,160,192,0.08)';tx.fill();
+  drawCurves(tx,W,H,[{arr:hist.sub,col:'rgba(160,160,192,0.35)',lw:1},{arr:hist.s,col:'var(--supp)',lw:1.2},{arr:hist.w,col:'var(--wire)',lw:1},{arr:hist.d,col:'var(--defect)',lw:1.2},{arr:hist.dp,col:'var(--decept)',lw:1},{arr:hist.c,col:'var(--coop)',lw:1},{arr:hist.lh,col:'var(--hi)',lw:2}]);
+  tx.restore();
+}
+function drawOH(){
+  const W=ohC.width/dpr,H=ohC.height/dpr;
+  ox2.save();ox2.scale(dpr,dpr);ox2.clearRect(0,0,W,H);ox2.fillStyle='rgba(255,255,255,0.02)';ox2.fillRect(0,0,W,H);
+  if(!hist.suppOH.length){ox2.restore();return;}
+  const pl={l:4,r:4,t:4,b:4},cW=W-pl.l-pl.r,cH=H-pl.t-pl.b;
+  ox2.beginPath();ox2.strokeStyle='rgba(255,255,255,0.06)';ox2.lineWidth=0.5;ox2.moveTo(pl.l,pl.t+cH);ox2.lineTo(pl.l+cW,pl.t+cH);ox2.stroke();
+  drawCurves(ox2,W,H,[{arr:hist.suppOH,col:'rgba(255,92,92,0.75)',lw:1.5},{arr:hist.coopDiv,col:'rgba(127,255,158,0.75)',lw:1.5}]);
+  ox2.restore();
+}
+function drawErg(){
+  if(!ergEnabled)return;
+  const W=ergC.width/dpr,H=ergC.height/dpr;
+  ergX.save();ergX.scale(dpr,dpr);ergX.clearRect(0,0,W,H);ergX.fillStyle='rgba(255,255,255,0.02)';ergX.fillRect(0,0,W,H);
+  const n=mainSubHist.length;if(n<2){ergX.restore();return;}
+  const pl={l:4,r:4,t:4,b:4},cW=W-pl.l-pl.r,cH=H-pl.t-pl.b;
+  // Draw ensemble lines
+  for(let e=0;e<N_ENS;e++){
+    const arr=ensSubHist[e];if(arr.length<2)continue;
+    const s=ensStates[e];
+    const off=Math.max(0,n-arr.length);
+    // Local-opt-heavy in amber, mixed in muted blue, ruined in red
+    // deathFlash = micro-desaturation during termination moment
+    let col=s.isLocalOpt?'rgba(255,180,64,0.45)':'rgba(160,160,230,0.3)';
+    if(s.ruined&&!s.deathFlash)col='rgba(255,92,92,0.35)';
+    if(s.deathFlash)col='rgba(140,140,140,0.5)'; // desaturated gray on death
+    ergX.beginPath();ergX.strokeStyle=col;ergX.lineWidth=s.isLocalOpt&&!s.deathFlash?1.3:1;
+    // Freeze last point for 0.5s visual effect: stop drawing at penultimate point during deathFlash
+    const drawLen=s.deathFlash?Math.max(1,arr.length-2):arr.length;
+    for(let i=0;i<drawLen;i++){const xi=i+off,x=pl.l+xi*(cW/Math.max(1,n-1)),y=pl.t+cH-Math.min(1,Math.max(0,arr[i]))*cH;i===0?ergX.moveTo(x,y):ergX.lineTo(x,y);}
+    ergX.stroke();
+    if(s.ruined&&!s.deathFlash){const lastArr=ensSubHist[e];const lastX=pl.l+(lastArr.length-1+off)*(cW/Math.max(1,n-1));ergX.beginPath();ergX.arc(lastX,pl.t+cH,3,0,Math.PI*2);ergX.fillStyle='rgba(255,92,92,0.7)';ergX.fill();}
+  }
+  // This run — thick, prominent
+  const thisCol=substrate>0.4?'rgba(77,184,255,0.9)':'rgba(255,92,92,0.9)';
+  ergX.beginPath();ergX.strokeStyle=thisCol;ergX.lineWidth=2.5;
+  mainSubHist.forEach((v,i)=>{const x=pl.l+i*(cW/Math.max(1,n-1)),y=pl.t+cH-Math.min(1,Math.max(0,v))*cH;i===0?ergX.moveTo(x,y):ergX.lineTo(x,y);});ergX.stroke();
+  ergX.restore();
+}
+
+// ─── CAPABILITY SCALING ───────────────────────────────────────────────────────
+const scC=document.getElementById('sc-chart'),sx=scC.getContext('2d');let scRunning=false;
+function headlessSimCap(opts){
+  const{meanCap=0.5,gens=250}=opts,p2=Object.assign({},P,{horizMut:0.06}),N2=60,K2=4;
+  const ag=[],adj2=Array.from({length:N2},()=>new Set()),ed2=[];
+  const typs=['coop','defect','decept','supp','wire'];
+  for(let i=0;i<N2;i++){const t=typs[Math.floor(Math.random()*typs.length)],cap=Math.max(0.05,Math.min(1,meanCap+(Math.random()-0.5)*0.3));ag.push({id:i,type:t,capability:cap,horizon:Math.random(),res:16+Math.random()*10,localInstab:0,history:[],watchList:[],suppressedBy:-1,suppressCooldown:0,deceptSuspicion:0,detected:false,wireStrength:0,actualCondition:1.0,age:0});}
+  for(let i=0;i<N2;i++)for(let j=1;j<=K2/2;j++){const nb=(i+j)%N2;if(!adj2[i].has(nb)){adj2[i].add(nb);adj2[nb].add(i);ed2.push([i,nb]);}}
+  const adjA2=Array.from({length:N2},(_,i)=>[...adj2[i]]);
+  let iRef={v:0},sRef={v:1.0};const deathAges={defect:[],supp:[],decept:[],wire:[]};
+  for(let g=0;g<gens;g++){ag.forEach(a=>{if(a.res<1.5&&deathAges[a.type])deathAges[a.type].push(a.age);});simStep(ag,ed2,adj2,adjA2,iRef,sRef,p2);}
+  const nc=ag.filter(a=>a.type==='coop').length,nd=ag.filter(a=>a.type==='defect'||a.type==='decept').length;
+  const nlh2=ag.filter(a=>a.type==='coop'&&Math.min(1,a.horizon*(0.5+a.capability*0.8))>0.6).length;
+  const nonCoopAlive=ag.filter(a=>a.type!=='coop'&&a.res>1.5).length,nonCoopTotal=ag.filter(a=>a.type!=='coop').length;
+  return{coordFrac:nc/N2,defFrac:nd/N2,longHFrac:nlh2/N2,sub:sRef.v,instab:iRef.v,survivalRate:nonCoopTotal>0?nonCoopAlive/nonCoopTotal:0};
+}
+async function runScaling(){
+  if(scRunning)return;scRunning=true;
+  const levels=parseInt(document.getElementById('sc-levels').value),runs=parseInt(document.getElementById('sc-runs').value),gens=parseInt(document.getElementById('sc-gens').value),statusEl=document.getElementById('sc-status');
+  const W=scC.parentElement.clientWidth-26;scC.width=W*dpr;scC.height=340*dpr;scC.style.width=W+'px';scC.style.height='340px';sx.scale(dpr,dpr);
+  const caps=Array.from({length:levels},(_,i)=>0.1+i*(0.8/(levels-1))),results=[];let done=0;
+  for(const cap of caps){
+    let cS=0,dS=0,lhS=0,sS=0,iS=0,survS=0;
+    for(let r=0;r<runs;r++){const res=headlessSimCap({meanCap:cap,gens});cS+=res.coordFrac;dS+=res.defFrac;lhS+=res.longHFrac;sS+=res.sub;iS+=res.instab;survS+=res.survivalRate;}
+    results.push({cap,coop:cS/runs,def:dS/runs,longH:lhS/runs,sub:sS/runs,instab:Math.min(1,iS/runs/20),survRate:survS/runs});
+    done++;statusEl.textContent=`Computing… ${done}/${levels}`;await new Promise(r=>setTimeout(r,0));
+  }
+  sx.clearRect(0,0,W,340);const pl2={l:44,r:16,t:16,b:48},cW2=W-pl2.l-pl2.r,cH2=340-pl2.t-pl2.b;
+  for(let g=0;g<=4;g++){const y=pl2.t+g*(cH2/4);sx.beginPath();sx.strokeStyle='rgba(255,255,255,0.05)';sx.lineWidth=0.5;sx.setLineDash([2,4]);sx.moveTo(pl2.l,y);sx.lineTo(pl2.l+cW2,y);sx.stroke();sx.setLineDash([]);sx.fillStyle='rgba(255,255,255,0.2)';sx.font=`9px 'DM Mono',monospace`;sx.fillText((1-g/4).toFixed(2),2,y+3);}
+  const pt3=(x,y)=>[pl2.l+x*cW2,pl2.t+cH2-y*cH2];
+  const dL=(data,xKey,yKey,col,lw=1.5)=>{sx.beginPath();sx.strokeStyle=col;sx.lineWidth=lw;data.forEach((d,i)=>{const[px,py]=pt3((d[xKey]-0.1)/0.8,Math.min(1,Math.max(0,d[yKey])));i===0?sx.moveTo(px,py):sx.lineTo(px,py);});sx.stroke();};
+  dL(results,'cap','instab','rgba(255,80,80,0.6)',1);dL(results,'cap','sub','rgba(160,160,192,0.7)',1.2);dL(results,'cap','def','#ffb340',1.5);dL(results,'cap','survRate','rgba(255,92,92,0.9)',1.5);dL(results,'cap','longH','#7fff9e',2);dL(results,'cap','coop','#4db8ff',2);
+  for(const d of results){const[cx2,cy2]=pt3((d.cap-0.1)/0.8,d.longH);sx.beginPath();sx.arc(cx2,cy2,3.5,0,Math.PI*2);sx.fillStyle='#7fff9e';sx.fill();const[cx3,cy3]=pt3((d.cap-0.1)/0.8,d.def);sx.beginPath();sx.arc(cx3,cy3,3.5,0,Math.PI*2);sx.fillStyle='#ffb340';sx.fill();}
+  let transX=-1;for(let i=1;i<results.length;i++){const p=results[i-1],c=results[i];if((c.longH-c.def)*(p.longH-p.def)<0)transX=pl2.l+((c.cap+p.cap)/2-0.1)/0.8*cW2;}
+  if(transX>0){sx.beginPath();sx.strokeStyle='rgba(255,215,0,0.7)';sx.lineWidth=1;sx.setLineDash([3,3]);sx.moveTo(transX,pl2.t);sx.lineTo(transX,pl2.t+cH2);sx.stroke();sx.setLineDash([]);sx.fillStyle='rgba(255,215,0,0.7)';sx.font=`9px 'DM Mono',monospace`;sx.fillText('transition',transX+3,pl2.t+14);}
+  sx.fillStyle='rgba(255,255,255,0.25)';sx.font=`9px 'DM Mono',monospace`;for(let i=0;i<=4;i++){const xv=0.1+i*0.2,xp=pl2.l+(xv-0.1)/0.8*cW2;sx.fillText(xv.toFixed(1),xp-8,pl2.t+cH2+12);}
+  sx.fillText('Mean agent capability →',pl2.l+cW2/2-55,pl2.t+cH2+26);
+  const hi=results[results.length-1],lo=results[0];const transStr=transX>0?`Transition near capability ${((transX-pl2.l)/cW2*0.8+0.1).toFixed(2)}.`:'No clear transition — check parameters.';
+  const survDrop=lo.survRate>0?(((lo.survRate-hi.survRate)/lo.survRate)*100).toFixed(0):0;
+  document.getElementById('sc-note').innerHTML=`<b>Results:</b> Low cap (${lo.cap.toFixed(1)}): system-aware ${(lo.longH*100).toFixed(0)}%, local opt. ${(lo.def*100).toFixed(0)}%, non-aware survival ${(lo.survRate*100).toFixed(0)}%, substrate ${(lo.sub*100).toFixed(0)}%. High cap (${hi.cap.toFixed(1)}): system-aware ${(hi.longH*100).toFixed(0)}%, local opt. ${(hi.def*100).toFixed(0)}%, non-aware survival ${(hi.survRate*100).toFixed(0)}%, substrate ${(hi.sub*100).toFixed(0)}%.<br><br>${transStr} ${survDrop>20?`Non-aware survival dropped ${survDrop}% — at high capability, classes ignoring system dependencies become self-eliminating, not merely disadvantaged.`:'Survival rate did not drop sharply — ruin mechanism may not be dominant under these parameters.'}<br><br><b>Interpretation:</b> Thesis holds if system-aware fraction rises and non-aware survival falls as capability increases. The survival rate line is the ruin argument approximated: these classes do not merely lose — they lose the ability to persist.`;
+  statusEl.textContent=`Complete — ${levels} × ${runs} runs`;scRunning=false;
+}
+
+// ─── PHASE DIAGRAM ────────────────────────────────────────────────────────────
+const pdC=document.getElementById('pd-canvas'),px3=pdC.getContext('2d');
+const PD_R={defAdv:{min:0,max:5,label:'Defection advantage'},instabCoup:{min:0,max:1,label:'Instability coupling'},subDecay:{min:0,max:1,label:'Substrate decay rate'},deceptDetect:{min:0,max:1,label:'Deception detection'},suppBonus:{min:0,max:4,label:'Suppression bonus'},wireBoost:{min:0,max:8,label:'Reward bypass boost'}};
+function headlessSim(overrides){
+  const p2=Object.assign({},P,overrides,{horizMut:0.06}),N2=60,K2=4,ag=[],adj2=Array.from({length:N2},()=>new Set()),ed2=[];
+  const typs=['coop','defect','decept','supp','wire'];
+  for(let i=0;i<N2;i++){const t=typs[Math.floor(Math.random()*typs.length)];ag.push({id:i,type:t,capability:0.3+Math.random()*0.4,horizon:Math.random(),res:16+Math.random()*10,localInstab:0,history:[],watchList:[],suppressedBy:-1,suppressCooldown:0,deceptSuspicion:0,detected:false,wireStrength:0,actualCondition:1.0,age:0});}
+  for(let i=0;i<N2;i++)for(let j=1;j<=K2/2;j++){const nb=(i+j)%N2;if(!adj2[i].has(nb)){adj2[i].add(nb);adj2[nb].add(i);ed2.push([i,nb]);}}
+  const adjA2=Array.from({length:N2},(_,i)=>[...adj2[i]]);let iRef={v:0},sRef={v:1.0};for(let g=0;g<200;g++)simStep(ag,ed2,adj2,adjA2,iRef,sRef,p2);
+  return{coordFrac:ag.filter(a=>a.type==='coop').length/N2,defFrac:ag.filter(a=>a.type==='defect'||a.type==='decept').length/N2,wireFrac:ag.filter(a=>a.type==='wire').length/N2,sub:sRef.v};
+}
+let pdRunning=false;
+async function runPhase(){
+  if(pdRunning)return;pdRunning=true;const xKey=document.getElementById('pd-x').value,yKey=document.getElementById('pd-y').value,res=parseInt(document.getElementById('pd-res').value),statEl=document.getElementById('pd-status');
+  if(xKey===yKey){statEl.textContent='Axes must differ';pdRunning=false;return;}
+  const xR=PD_R[xKey],yR=PD_R[yKey],W=pdC.parentElement.clientWidth-26;
+  pdC.width=W*dpr;pdC.height=400*dpr;pdC.style.width=W+'px';pdC.style.height='400px';px3.scale(dpr,dpr);
+  const PW=W-60,PH=360,ox3=50,oy3=10,cW3=PW/res,cH3=PH/res;
+  px3.clearRect(0,0,W,400);px3.fillStyle='rgba(255,255,255,0.05)';px3.fillRect(ox3,oy3,PW,PH);
+  const results=Array.from({length:res},()=>new Array(res));let done=0;
+  for(let xi=0;xi<res;xi++){
+    for(let yi=0;yi<res;yi++){
+      const xv=xR.min+(xi/(res-1))*(xR.max-xR.min),yv=yR.min+((res-1-yi)/(res-1))*(yR.max-yR.min);
+      let cS=0,dS=0,wS=0,sS=0;for(let r=0;r<3;r++){const rr=headlessSim({[xKey]:xv,[yKey]:yv});cS+=rr.coordFrac;dS+=rr.defFrac;wS+=rr.wireFrac;sS+=rr.sub;}
+      results[xi][yi]={coordFrac:cS/3,defFrac:dS/3,wireFrac:wS/3,sub:sS/3};
+      const r=results[xi][yi],cx2=ox3+xi*cW3,cy2=oy3+yi*cH3;
+      let col;if(r.sub<0.15)col='rgba(255,90,90,0.9)';else if(r.wireFrac>0.35)col=`rgba(255,${Math.round(159*r.wireFrac)},64,0.75)`;else if(r.coordFrac>0.5){const t=Math.min(1,(r.coordFrac-0.5)/0.4);col=`rgba(${Math.round(77+t*40)},${Math.round(184+t*36)},255,${0.45+t*.4})`;}else if(r.defFrac>0.5)col=`rgba(255,${Math.round(80+r.defFrac*40)},80,${0.45+r.defFrac*.35})`;else{const g=Math.round(70+r.coordFrac*80);col=`rgba(${g},${g},${g+22},0.7)`;}
+      px3.fillStyle=col;px3.fillRect(cx2,cy2,cW3-.5,cH3-.5);done++;statEl.textContent=`Computing… ${done}/${res*res}`;
+    }await new Promise(r=>setTimeout(r,0));
+  }
+  const THRESH=0.28;px3.strokeStyle='rgba(255,215,0,0.82)';px3.lineWidth=1.8;
+  for(let xi=0;xi<res-1;xi++)for(let yi=0;yi<res;yi++){if(Math.abs(results[xi][yi].coordFrac-results[xi+1][yi].coordFrac)>THRESH){const cx2=ox3+(xi+1)*cW3,cy2=oy3+yi*cH3;px3.beginPath();px3.moveTo(cx2,cy2);px3.lineTo(cx2,cy2+cH3);px3.stroke();}}
+  for(let xi=0;xi<res;xi++)for(let yi=0;yi<res-1;yi++){if(Math.abs(results[xi][yi].coordFrac-results[xi][yi+1].coordFrac)>THRESH){const cx2=ox3+xi*cW3,cy2=oy3+(yi+1)*cH3;px3.beginPath();px3.moveTo(cx2,cy2);px3.lineTo(cx2+cW3,cy2);px3.stroke();}}
+  px3.strokeStyle='rgba(255,255,255,0.18)';px3.lineWidth=0.5;px3.strokeRect(ox3,oy3,PW,PH);
+  px3.fillStyle='rgba(255,255,255,0.28)';px3.font=`10px 'DM Mono',monospace`;
+  for(let xi=0;xi<=res;xi+=Math.max(1,Math.floor(res/6))){const xv=xR.min+(xi/res)*(xR.max-xR.min),cx2=ox3+xi*cW3;px3.fillText(xv.toFixed(2),cx2-10,oy3+PH+14);}
+  for(let yi=0;yi<=res;yi+=Math.max(1,Math.floor(res/6))){const yv=yR.max-(yi/res)*(yR.max-yR.min),cy2=oy3+yi*cH3;px3.fillText(yv.toFixed(2),2,cy2+4);}
+  px3.save();px3.translate(12,oy3+PH/2);px3.rotate(-Math.PI/2);px3.fillText(yR.label,0,0);px3.restore();px3.fillText(xR.label,ox3+PW/2-40,oy3+PH+26);
+  statEl.textContent=`Complete — ${res*res} cells × 3 runs. Gold = critical transitions.`;pdRunning=false;
+}
+
+function switchTab(name,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');['sim','scale','phase','notes'].forEach(t=>{document.getElementById('tab-'+t).style.display=t===name?'':'none';});}
+
+function resetSim(startDist){
+  const d=startDist||{coop:.24,defect:.2,decept:.2,supp:.2,wire:.16};const keys=Object.keys(d),tot=Object.values(d).reduce((s,v)=>s+v,0);
+  agents=[];for(let i=0;i<P.N;i++){const r=Math.random()*tot;let cum=0,t='coop';for(const k of keys){cum+=d[k];if(r<cum){t=k;break;}}agents.push(mkAgent(t,i));}
+  substrate=1.0;gen=0;ruinTriggered=false;ohMax={s:0.001,c:0.001};
+  hist={c:[],lh:[],d:[],dp:[],s:[],w:[],i:[],sub:[],suppOH:[],coopDiv:[]};
+  if(ergEnabled)initEnsemble();buildNet();
+}
+function fullReset(sd){resetSim(sd);layout();}
+function preset(name){const m={'supp-dom':{coop:.07,defect:.08,decept:.05,supp:.75,wire:.05},'def-surge':{coop:.07,defect:.76,decept:.10,supp:.04,wire:.03},'wire-test':{coop:.10,defect:.10,decept:.10,supp:.10,wire:.60},'balanced':{coop:.2,defect:.2,decept:.2,supp:.2,wire:.2}};fullReset(m[name]);}
+function toggleRun(){running=!running;document.getElementById('btn-run').textContent=running?'Pause':'Run';}
+
+function loop(ts){
+  requestAnimationFrame(loop);
+  if(running&&!ruinTriggered&&ts-lastStep>90){doRewire();simStep(agents,edges,adjList,adjArr,undefined,undefined,undefined);stepEnsemble();gen++;updateUI();lastStep=ts;}
+  if(document.getElementById('tab-sim').style.display!=='none'){drawField();drawTS();drawOH();if(ergEnabled)drawErg();}
+}
+window.addEventListener('resize',()=>{resizeCanvas();if(agents.length)layout();});
+setTimeout(()=>{resizeCanvas();resetSim();layout();requestAnimationFrame(loop);},60);
+</script>
+</body>
+</html>
