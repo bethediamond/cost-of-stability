@@ -1,7 +1,7 @@
 # Toy 02 — The Cost of Stability
 
 > *Part of **The Alignment of Intelligence** — a three-article series.*
-> **Article 2 is forthcoming.** This toy is a companion to Article 2: *Attractor*.
+> This toy is a companion to [Article 2: Attractor](https://medium.com/@diamondlight/iii-what-does-aligned-intelligence-actually-converge-toward-2fd726374363).
 
 ---
 
@@ -109,9 +109,9 @@ open toy_02.html
 
 ---
 
-## Article (Coming Soon)
+## Article
 
-The full article — *The Alignment of Intelligence, Article 2: Attractor* — is not yet published. This repository will be updated with a link when it goes live.
+[The Alignment of Intelligence, Article 2: Attractor](https://medium.com/@diamondlight/iii-what-does-aligned-intelligence-actually-converge-toward-2fd726374363)
 
 ---
 
