@@ -1242,12 +1242,19 @@ function runTests() {
             (lowStressSub / 4) >= (highStressSub / 4) - 0.25,
             `coop-favoured sub=${((lowStressSub/4)*100).toFixed(0)}% def-favoured sub=${((highStressSub/4)*100).toFixed(0)}%`);
 
-      // Test 3: instability coupling is load-bearing — higher coupling → more substrate stress
-      const rLowIC  = headlessSim({instabCoup: 0.0, subDecay: 0.35, defAdv: 2.0});
-      const rHighIC = headlessSim({instabCoup: 0.9, subDecay: 0.35, defAdv: 2.0});
+      // Test 3: instability coupling is load-bearing — averaged over multiple runs
+      // Single-run comparisons are unreliable because at instabCoup=0 the suppressor
+      // escape mechanism is also disabled, which can paradoxically help substrate in
+      // some topologies. Average 4 runs to get a stable signal.
+      let lowICSum = 0, highICSum = 0;
+      for (let t = 0; t < 4; t++) {
+        lowICSum  += headlessSim({instabCoup: 0.0, subDecay: 0.35, defAdv: 2.0}).sub;
+        highICSum += headlessSim({instabCoup: 0.9, subDecay: 0.35, defAdv: 2.0}).sub;
+      }
+      const avgLowIC = lowICSum / 4, avgHighIC = highICSum / 4;
       check('Higher instability coupling → equal or more substrate stress',
-            rHighIC.sub <= rLowIC.sub + 0.3,
-            `highIC sub=${(rHighIC.sub*100).toFixed(0)}% lowIC sub=${(rLowIC.sub*100).toFixed(0)}%`);
+            avgHighIC <= avgLowIC + 0.3,
+            `highIC sub=${(avgHighIC*100).toFixed(0)}% lowIC sub=${(avgLowIC*100).toFixed(0)}%`);
 
       // Test 4: wireheading fragility stresses substrate
       const hsWire = headlessSim({wireBoost: 7.0, wireFrag: 0.8, subDecay: 0.5});
