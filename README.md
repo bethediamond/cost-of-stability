@@ -33,17 +33,17 @@ All five start from the same population distribution. The simulation does not re
 
 **Structural Elimination** — Each objective class is eliminated not when it loses population share, but when it can no longer sustain positive return under its own dynamics. The failure is endogenous. No external punishment is applied.
 
-**Suppression Overhead vs. Coordination Dividend** — Control-based objectives must track all joint strategies in the population: K^N complexity. Coordination requires only a shared protocol: O(N). The divergence is structural, not contingent on parameter choices.
+**Suppression Overhead vs. Coordination Dividend** — Control-based objectives must track all joint strategies in the population: O(C^N) complexity. Coordination requires only a shared protocol: O(N). The divergence is structural, not contingent on parameter choices. Whether these pressures formally exclude stable exclusionary alternatives is the open question OP4/OP9 address; what the simulation shows is the cost-curve divergence.
 
-**Viable Objective Space** — The set of classes that have not yet been structurally eliminated. As the simulation runs, classes gray out as their own cost dynamics exceed their returns. The remaining space is the attractor the article derives.
+**Viable Objective Space** — The set of classes that have not yet been structurally eliminated. As the simulation runs, classes gray out as their own cost dynamics exceed their returns. The remaining space is the modeled surviving region the article's selection dynamics point toward.
 
 **Non-Ergodicity** — Ensemble averages across parallel timelines can look healthy while any single timeline approaches ruin. The ergodicity panel makes this concrete: some parallel runs outperform this one — until they don't. There is only one timeline any agent inhabits.
 
 **Absorbing State** — Substrate collapse is irrecoverable by model dynamics. Every objective class that contributed to it — regardless of performance before the threshold — has a long-run value identical to classes that never ran. This is not an overlay on the dynamics; it is what the dynamics produce.
 
-**Capability Scaling** — The central empirical claim: at low capability, system-aware and non-aware classes may perform similarly. As capability increases, the structural gap opens. The survival rate of non-aware classes is the ruin argument made visible.
+**Capability Scaling** — A probe of one article-level prediction: at low capability, system-aware and non-aware classes may perform similarly. As capability increases, the structural gap opens. The survival rate of non-aware classes is the ruin argument made visible in this selection model.
 
-**A — Population-Level System-Awareness** — The fraction of agents with effective temporal horizon above 0.6. This is the population-level proxy for system-awareness, and is formalized in Article 3 as the A_causal term in Φ = C / A_causal.
+**A — Population-Level System-Awareness** — The fraction of agents with effective temporal horizon above 0.6. This is a population-level proxy for system-awareness. Article 3 formalizes a related but distinct individual-optimizer concept: A_causal in Φ = C / A_causal.
 
 ---
 
@@ -53,7 +53,7 @@ All five start from the same population distribution. The simulation does not re
 
 **Capability Scaling** — Runs the simulation across a sweep of agent capability levels. Tests whether the structural advantage of system-aware objectives is capability-dependent or holds across the range.
 
-**Phase Diagram** — Maps outcomes across any two parameter axes. Gold boundaries mark critical transitions — discontinuous shifts in which objective class dominates. The shape of those boundaries is the structural claim.
+**Phase Diagram** — Maps outcomes across any two parameter axes. Gold boundaries mark critical transitions — discontinuous shifts in which objective class dominates. The shape of those boundaries is the model's structural prediction.
 
 **Model Notes** — Full design rationale: what the simulation claims to demonstrate, what it cannot claim, the three constraint families, ablation mapping, and the logic behind each structural elimination condition.
 
@@ -77,7 +77,7 @@ All five start from the same population distribution. The simulation does not re
 
 **Presets:** Control-based dominant · Local opt. surge · Reward bypass majority · Balanced
 
-**Ablation toggles:** System-Awareness · Instability Coupling · Network Rewiring · Agent Memory — each removes one structural mechanism to test whether the attractor requires it.
+**Ablation toggles:** System-Awareness · Instability Coupling · Network Rewiring · Agent Memory — each removes one structural mechanism to test whether the modeled surviving region requires it.
 
 ---
 
@@ -90,11 +90,11 @@ Constraint  →  Attractor  →  Crossing
 
 **Article 1 (Toy 01):** Eliminates invalid objectives. Any objective that ignores system-wide effects is structurally self-terminating.
 
-**Article 2 (this toy):** Identifies the surviving region — the attractor. Once self-defeating objectives have been removed, what does selection converge toward? This simulation tests whether coordination's dominance is structural or a product of arbitrary payoff assumptions.
+**Article 2 (this toy):** Identifies the attractor-direction within the surviving region. What does structural pressure point toward once self-defeating objectives have been removed? This simulation tests whether coordination's advantage is structural or a product of arbitrary payoff assumptions.
 
-**Article 3:** Determines reachability. The control variable governing whether real systems arrive at the attractor before encountering the absorbing states Article 1 identifies.
+**Article 3:** Determines reachability. The control variable governing whether real systems arrive at the viable region before encountering the absorbing states Article 1 identifies.
 
-All three reduce to one constraint: whether capability outpaces the system's ability to model its own effects.
+All three address the same underlying gap: the distance between what a system can do and what it can accurately model about the consequences of doing it.
 
 ---
 
