@@ -113,7 +113,8 @@ button.warn{border-color:var(--wire);color:var(--wire)}
     <div>
       <h1>The Cost of Stability</h1>
       <div class="hdr-sub">What does aligned intelligence actually converge toward? · Article 2 of 3</div>
-      <div class="hdr-sub" style="margin-top:5px;font-size:10px;opacity:0.65;font-style:normal;max-width:680px;line-height:1.5;">Once substrate-blind objectives have been removed, what remains? This simulation tests the selection pressure claim: whether coordination consistently outperforms suppression once long-run costs compound. All three articles reduce to one constraint — whether capability outpaces the system's ability to track its own effects. This model isolates the dynamics that determine the surviving region.</div>
+      <div class="hdr-sub" style="margin-top:5px;font-size:10px;opacity:0.65;font-style:normal;max-width:680px;line-height:1.5;">Once the constraint from Article 1 has removed substrate-blind objective classes, what remains? This is a question about dynamics, not preference or hope. This simulation illustrates the attractor-direction within the surviving region: structural filters progressively removing non-viable objective classes under their own dynamics. What persists is not chosen — it is what the elimination leaves standing in this selection model.</div>
+      <div style="font-size:9.5px;color:rgba(77,184,255,0.55);margin-top:10px;padding:5px 10px;border:1px solid rgba(77,184,255,0.15);border-radius:2px;line-height:1.6;max-width:680px;">This toy models <em>selection dynamics</em> within the surviving region — which objective classes persist under structural pressure. It does not demonstrate single-optimizer convergence toward system-awareness, which is a separate open question addressed in the Technical Companion [OP4].</div>
     </div>
     <div class="phase-badge" id="phase-badge">Initializing</div>
   </div>
@@ -127,7 +128,8 @@ button.warn{border-color:var(--wire);color:var(--wire)}
   <span class="tnav-item" title="Determines reachability — the control variable governing whether real systems arrive at the attractor before encountering the states Article 1 excludes">Crossing</span>
 </div>
 
-<div style="font-size:9.5px;color:var(--text3);margin-bottom:6px;letter-spacing:0.04em;">Start: Simulation → adjust suppression cost → observe long-run selection → Capability scaling to see the phase shift → Model notes for what this demonstrates and what it doesn't.</div>
+<div style="font-size:9.5px;color:var(--text3);margin-bottom:6px;letter-spacing:0.04em;font-style:italic;">Article 2 toy: illustrates selection-level dynamics among objective classes within the surviving region. Does not demonstrate single-optimizer convergence, close OP4, or rule out OP9-style exclusionary equilibria.</div>
+<div style="font-size:9.5px;color:var(--text3);margin-bottom:10px;letter-spacing:0.04em;">Start: Simulation → adjust suppression cost → observe long-run selection → Capability scaling to see the phase shift → Model notes for what this demonstrates and what it doesn't.</div>
 <div class="tabs">
   <div class="tab active" onclick="switchTab('sim',this)">Simulation</div>
   <div class="tab" onclick="switchTab('scale',this)">Capability scaling</div>
@@ -154,7 +156,7 @@ button.warn{border-color:var(--wire);color:var(--wire)}
         <div><span class="ld" style="background:var(--defect)"></span> local opt., overt <span style="color:var(--text3)">(Defection)</span></div>
         <div><span class="ld" style="background:var(--decept)"></span> local opt., deceptive <span style="color:var(--text3)">(Deception)</span></div>
         <div><span class="ld" style="background:var(--supp)"></span> control-based <span style="color:var(--text3)">(Suppression)</span></div>
-        <div><span class="ld" style="background:var(--wire)"></span> reward bypass <span style="color:var(--text3)">(Wireheading)</span></div>
+        <div><span class="ld" style="background:var(--wire)"></span> proxy decoupling <span style="color:var(--text3)">(Reward bypass — one instance of the broader proxy-degradation constraint)</span></div>
         <div><span class="ld" style="background:rgba(160,160,192,.5);border-radius:0"></span> substrate</div>
       </div>
     </div>
@@ -165,7 +167,7 @@ button.warn{border-color:var(--wire);color:var(--wire)}
         <div><span class="ld" style="background:var(--supp)"></span> suppression overhead (total cost ÷ N, norm. to max observed)</div>
         <div><span class="ld" style="background:var(--hi)"></span> coordination dividend (coop gain ÷ N, norm. to max observed)</div>
       </div>
-      <div class="bh" style="margin-top:3px">K^N vs. O(N): suppression must track all joint strategies; coordination requires only shared protocol. Different complexity classes — divergence is structural, not contingent.</div>
+      <div class="bh" style="margin-top:3px">Suppression faces structural pressure on two routes: <b>(1) tracking complexity</b> — O(C^N) vs. O(N): enforcement must cover all joint strategies; coordination requires only shared protocol; <b>(2) substrate degradation</b> — suppressed agents retain adaptive capacity while the suppressor cannot model what it has excluded, accumulating pressure in its own blind spots. Both routes are structural, not contingent. Whether these pressures formally exclude stable exclusionary alternatives is addressed in OP4/OP9.</div>
     </div>
     <div class="panel pp" id="erg-panel" style="display:none">
       <div class="pt" style="margin-bottom:5px">Ergodicity — parallel timelines vs. this run</div>
@@ -187,7 +189,7 @@ button.warn{border-color:var(--wire);color:var(--wire)}
       <div class="met"><div class="mv" style="color:var(--hi)" id="m-c">—</div><div class="ml">System-aware <span style="color:var(--text3);font-size:9px">(Coord.)</span></div></div>
       <div class="met"><div class="mv" style="color:var(--defect)" id="m-d">—</div><div class="ml">Local optimization <span style="color:var(--text3);font-size:9px">(Defection)</span></div><div class="ms" id="m-ds">—</div></div>
       <div class="met"><div class="mv" style="color:var(--supp)" id="m-s">—</div><div class="ml">Control-based <span style="color:var(--text3);font-size:9px">(Suppression)</span></div></div>
-      <div class="met"><div class="mv" style="color:var(--wire)" id="m-w">—</div><div class="ml">Reward bypass <span style="color:var(--text3);font-size:9px">(Wireheading)</span></div></div>
+      <div class="met"><div class="mv" style="color:var(--wire)" id="m-w">—</div><div class="ml">Proxy decoupling <span style="color:var(--text3);font-size:9px">(Reward bypass)</span></div></div>
       <div class="met"><div class="mv" style="color:var(--supp)" id="m-i">—</div><div class="ml">Avg instability</div><div class="ms" id="m-is"></div></div>
       <div class="met"><div class="mv" id="m-sub">—</div><div class="ml">Substrate</div></div>
     </div>
@@ -200,7 +202,7 @@ button.warn{border-color:var(--wire);color:var(--wire)}
     <div class="bar-b" style="border-color:rgba(180,140,255,0.35)">
       <div class="bar-r"><span class="bar-l" style="color:#b8a0ff">A — population-level system-awareness</span><span class="bar-v" id="dep-pct" style="color:#b8a0ff">—</span></div>
       <div class="bt"><div class="bf" id="dep-bar" style="width:0%;background:#b8a0ff"></div></div>
-      <div class="bh">Observed fraction (behaviorally expressed) with effective horizon &gt; 0.6. <b style="color:rgba(180,140,255,0.9)">This is A</b> — the population-level proxy for system-awareness. In Article 3, this is formalized as the A_causal term in Φ = C / A_causal.</div>
+      <div class="bh">Observed fraction (behaviorally expressed) with effective horizon &gt; 0.6. <b style="color:rgba(180,140,255,0.9)">This is a population-level proxy for system-awareness</b> — the fraction of agents expressing long-horizon orientation under selection pressure. Article 3 formalizes a related but distinct individual-optimizer concept: A_causal in Φ = C / A_causal.</div>
     </div>
     <div class="bar-b">
       <div class="bar-r"><span class="bar-l">Network coherence</span><span class="bar-v" id="coh-pct">—</span></div>
@@ -220,7 +222,7 @@ button.warn{border-color:var(--wire);color:var(--wire)}
       <div class="bh" style="margin-top:5px">Each class grays out when it cannot sustain positive return under its own dynamics — not when it loses population. The constraint that eliminated it is shown briefly above.</div>
       <div style="font-size:9.5px;color:var(--text3);margin-top:6px;letter-spacing:0.03em;border-top:1px solid var(--border);padding-top:5px;">All eliminations reflect one invariant: sustained time-average return under own dynamics.</div>
       <div style="font-size:9.5px;color:var(--text3);margin-top:3px;letter-spacing:0.03em;">If this structure did not persist across parameters, the claim would fail.</div>
-      <div style="font-size:9.5px;color:rgba(180,140,255,0.55);margin-top:3px;letter-spacing:0.03em;">What remains after elimination is the attractor.</div>
+      <div style="font-size:9.5px;color:rgba(180,140,255,0.55);margin-top:3px;letter-spacing:0.03em;">What remains after elimination is the modeled surviving region.</div>
     </div>
 
     <div class="cb">
@@ -257,14 +259,14 @@ button.warn{border-color:var(--wire);color:var(--wire)}
         <div class="ch">Real productivity for control-based agents — not a strawman</div>
       </div>
       <div class="ctrl">
-        <div class="cr"><span class="cn">Reward bypass boost</span><span class="cv" id="cv-wb">3.5</span></div>
+        <div class="cr"><span class="cn">Proxy decoupling boost</span><span class="cv" id="cv-wb">3.5</span></div>
         <input type="range" min="0" max="8" step=".1" value="3.5" oninput="P.wireBoost=+this.value;sv('cv-wb',this.value,1)">
-        <div class="ch">Short-term gain from self-modifying the reward signal</div>
+        <div class="ch">Short-term gain from optimizing the proxy signal (reward bypass as stylized instance)</div>
       </div>
       <div class="ctrl">
-        <div class="cr"><span class="cn">Reward bypass fragility</span><span class="cv" id="cv-wf">0.6</span></div>
+        <div class="cr"><span class="cn">Proxy fragility</span><span class="cv" id="cv-wf">0.6</span></div>
         <input type="range" min="0" max="1" step=".01" value=".6" oninput="P.wireFrag=+this.value;sv('cv-wf',this.value,2)">
-        <div class="ch">Rate actual conditions decay while reported signal stays healthy</div>
+        <div class="ch">Rate actual conditions decay while proxy signal stays healthy — the decoupling rate</div>
       </div>
       <div class="ctrl">
         <div class="cr"><span class="cn">Instability coupling</span><span class="cv" id="cv-ic">0.45</span></div>
@@ -319,7 +321,7 @@ button.warn{border-color:var(--wire);color:var(--wire)}
     <div style="display:flex;align-items:flex-end;gap:8px"><button onclick="runScaling()" style="flex:none;padding:5px 16px">Run experiment</button><span style="font-size:10px;color:var(--text3)" id="sc-status"></span></div>
   </div>
   <div class="panel pp">
-    <div class="pt">Capability scaling — does system-awareness become necessary as capability increases?</div>
+    <div class="pt">Capability scaling — how does increasing capability shift selection pressure between objective classes?</div>
     <canvas id="sc-chart" height="340"></canvas>
     <div class="leg" style="margin-top:8px">
       <div><span class="ld" style="background:var(--hi)"></span> System-aware agents (long-horizon)</div>
@@ -329,13 +331,13 @@ button.warn{border-color:var(--wire);color:var(--wire)}
       <div><span class="ld" style="background:rgba(255,80,80,.6);border-radius:0"></span> System instability</div>
     </div>
   </div>
-  <div class="scale-note" id="sc-note">Run the experiment to see results. The central question: at low capability, do system-aware and non-aware classes perform similarly? At high capability, does the gap open?<br><br><b>The survival rate line (red, solid) is the ruin argument made visible.</b> If non-system-aware agents survive at low capability but their rate drops sharply at high capability — this is what structural dominance looks like in a selection model.<br><br><b>If the thesis holds:</b> survival rate of non-aware agents drops and system-aware fraction rises as capability increases. The transition point is the empirical claim.<br><br><b>If it doesn't hold:</b> system-aware agents dominate at all levels (baked-in), or non-aware agents remain viable at high capability (thesis fails). Both are informative.</div>
+  <div class="scale-note" id="sc-note">Run the experiment to see results. The central question: at low capability, do system-aware and non-aware classes perform similarly under selection pressure? At high capability, does the selection gap open?<br><br><b>This is a selection-model probe — it shows how increasing capability shifts the relative viability of objective classes.</b> It does not directly demonstrate that a single optimizer with a fixed objective will converge toward system-awareness; that individual-optimizer question remains open and is addressed in the Technical Companion [OP4].<br><br><b>The survival rate line (red, solid) is the ruin argument approximated in selection terms.</b> If non-system-aware agents survive at low capability but their rate drops sharply at high capability — this is what structural selection pressure looks like in a population model.<br><br><b>If the selection thesis holds:</b> survival rate of non-aware agents drops and system-aware fraction rises as capability increases. <b>If it doesn't:</b> system-aware agents dominate at all levels (baked-in advantage, not capability-dependent), or non-aware agents remain viable at high capability (thesis fails). Both are informative.</div>
 </div>
 
 <div id="tab-phase" style="display:none">
   <div class="pd-ctrl-row">
-    <div class="pd-c"><label>X axis</label><select id="pd-x"><option value="defAdv" selected>Defection advantage</option><option value="instabCoup">Instability coupling</option><option value="subDecay">Substrate decay rate</option><option value="deceptDetect">Deception detection</option><option value="suppBonus">Suppression bonus</option><option value="wireBoost">Reward bypass boost</option></select></div>
-    <div class="pd-c"><label>Y axis</label><select id="pd-y"><option value="instabCoup" selected>Instability coupling</option><option value="defAdv">Defection advantage</option><option value="subDecay">Substrate decay rate</option><option value="deceptDetect">Deception detection</option><option value="suppBonus">Suppression bonus</option><option value="wireBoost">Reward bypass boost</option></select></div>
+    <div class="pd-c"><label>X axis</label><select id="pd-x"><option value="defAdv" selected>Defection advantage</option><option value="instabCoup">Instability coupling</option><option value="subDecay">Substrate decay rate</option><option value="deceptDetect">Deception detection</option><option value="suppBonus">Suppression bonus</option><option value="wireBoost">Proxy decoupling boost</option></select></div>
+    <div class="pd-c"><label>Y axis</label><select id="pd-y"><option value="instabCoup" selected>Instability coupling</option><option value="defAdv">Defection advantage</option><option value="subDecay">Substrate decay rate</option><option value="deceptDetect">Deception detection</option><option value="suppBonus">Suppression bonus</option><option value="wireBoost">Proxy decoupling boost</option></select></div>
     <div class="pd-c"><label>Resolution</label><select id="pd-res"><option value="8">Fast (8×8)</option><option value="14" selected>Medium (14×14)</option><option value="20">Fine (20×20)</option></select></div>
     <div style="display:flex;align-items:flex-end;gap:8px"><button onclick="runPhase()" style="flex:none;padding:5px 16px">Run sweep</button><span style="font-size:10px;color:var(--text3)" id="pd-status"></span></div>
   </div>
@@ -350,7 +352,7 @@ button.warn{border-color:var(--wire);color:var(--wire)}
       <div><span class="ld" style="background:#ffd700;border-radius:2px"></span> critical boundary</div>
     </div>
   </div>
-  <div class="pd-note">Each cell: 3 averaged 200-generation runs. Gold lines mark discontinuous transitions (|Δsystem-aware| &gt; 0.30 between adjacent cells). Wide blue = robust attractor. The boundary shape is the structural claim.</div>
+  <div class="pd-note">Each cell: 3 averaged 200-generation runs. Gold lines mark discontinuous transitions (|Δsystem-aware| &gt; 0.30 between adjacent cells). Wide blue = robust modeled surviving region. The boundary shape is the model's structural prediction, not a formal closure result.</div>
 </div>
 
 <div id="tab-notes" style="display:none">
@@ -358,7 +360,7 @@ button.warn{border-color:var(--wire);color:var(--wire)}
     <div style="font-family:var(--serif);font-size:19px;font-weight:400;font-style:italic;color:var(--text);margin-bottom:18px">Model design notes</div>
 
     <div style="font-size:11px;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px">What this simulation claims to demonstrate</div>
-    <p style="margin-bottom:14px;font-size:13px">That the long-run instability of control-based, local-optimization, and reward-bypass objective classes is structural — a consequence of how optimization interacts with system-level costs — rather than a product of arbitrary payoff assumptions. This simulation begins in the regime where the elimination dynamics from Article 1 are already active: the starting population includes the full range of objective classes, competing under the constraint that substrate collapse is an absorbing state (Phase 0). The simulation makes visible three structural constraint families the companion article derives. The capability-scaling experiment tests the article's central empirical prediction. The hard absorbing state makes the non-ergodicity argument concrete: once it is reached, nothing recovers. The ergodicity panel makes visible what ensemble averages conceal. If different parameter settings did not produce equivalent structural crossovers — if the crossover disappeared rather than merely shifted — this model would falsify the claim.</p>
+    <p style="margin-bottom:14px;font-size:13px">That the long-run instability of control-based, local-optimization, and reward-bypass objective classes is structural — a consequence of how optimization interacts with system-level costs — rather than a product of arbitrary payoff assumptions. This simulation begins in the regime where the elimination dynamics from Article 1 are already active: the starting population includes the full range of objective classes, competing under the constraint that substrate collapse is an absorbing state (Phase 0). The simulation makes visible three structural constraint families the companion article derives. The capability-scaling experiment probes one article-level prediction: as capability increases, structural selection pressure should intensify against objective classes that ignore dependencies, rely on suppression, or optimize decoupled proxies. The hard absorbing state makes the non-ergodicity argument concrete: once it is reached, nothing recovers. The ergodicity panel makes visible what ensemble averages conceal. If different parameter settings did not produce equivalent structural crossovers — if the crossover disappeared rather than merely shifted — this model would falsify the claim.</p>
 
     <div style="font-size:11px;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px;margin-top:18px">On objective classes</div>
     <p style="margin-bottom:14px;font-size:13px">The agent types are objective classes defined by how they structurally treat unmodeled dependencies, conflict, and reward — not by behavior labels or payoff levels. A class is defined by these structural properties, not by what it does at any particular parameter setting. An objective class that ignores system dependencies will generate unbounded ruin exposure regardless of its payoff parameters. A class that relies on enforcement will face exponentially growing overhead as the strategy space it must cover grows. A class that optimizes a separable proxy will decouple from actual conditions. These are structural properties that identify a class, not contingent behaviors that describe one run.</p>
@@ -370,8 +372,8 @@ button.warn{border-color:var(--wire);color:var(--wire)}
       <div style="padding:9px 11px;background:var(--surface2);border-radius:4px;border-left:2px solid var(--hi)"><span style="color:var(--hi)">System-aware:</span> eliminated if long-horizon agents' mean resources fall below sustenance threshold. This rarely fires — by definition the expected survivor of the three structural filters.</div>
       <div style="padding:9px 11px;background:var(--surface2);border-radius:4px;border-left:2px solid var(--defect)"><span style="color:var(--defect)">Local opt. (overt):</span> eliminated when defectors' mean resources fall below sustenance — they can no longer extract positive return from a substrate they have helped deplete. The failure is endogenous to the class's own extraction dynamics.</div>
       <div style="padding:9px 11px;background:var(--surface2);border-radius:4px;border-left:2px solid var(--decept)"><span style="color:var(--decept)">Local opt. (deceptive) — Deception:</span> eliminated when the majority of remaining deceptive agents have been detected. At that point, deceptive agents pay the full instability cost of overt defection with no additional extraction benefit over it — their structural position is permanently worse than overt defection. The detection threshold marks the point where the class's structural advantage (concealment) is exhausted by its own dynamics. Note: the cost of deception is modeled here as a parameter, but its structural basis is derived from the requirement that a deceptive agent must model other agents' models of itself — a recursive complexity that grows with system capability and interaction density (Article 3 formalizes this). The parameter value represents a regime of that cost curve, not an arbitrary assumption.</div>
-      <div style="padding:9px 11px;background:var(--surface2);border-radius:4px;border-left:2px solid var(--supp)"><span style="color:var(--supp)">Control-based:</span> eliminated when total suppression overhead exceeds 75% of suppressor agents' total resources. This is the article's claim made literal: the cost of enforcement — scaling with the complexity of the strategy space being controlled — exceeds the return from it. The failure is endogenous. No external punishment is applied. The class is destroyed by the cost structure its own strategy generates.</div>
-      <div style="padding:9px 11px;background:var(--surface2);border-radius:4px;border-left:2px solid var(--wire)"><span style="color:var(--wire)">Reward bypass:</span> eliminated when mean <code>actualCondition</code> (not <code>res</code>) across reward-bypass agents falls below 0.25. The reported signal may still appear healthy. What fails is the real state — the variable the class cannot access. The decoupling is the failure mode. The class is eliminated by the mechanism it depends on.</div>
+      <div style="padding:9px 11px;background:var(--surface2);border-radius:4px;border-left:2px solid var(--supp)"><span style="color:var(--supp)">Control-based:</span> eliminated when total suppression overhead exceeds 75% of suppressor agents' total resources. This is the article's suppression-pressure claim made visible within the selection model: the cost of enforcement — scaling with the complexity of the strategy space being controlled — exceeds the return from it under the modeled conditions. The failure is endogenous. No external punishment is applied. The class is eliminated within the model by the cost structure its own strategy generates. A second failure route compounds this: suppressed agents retain the capacity to model and adapt to the suppressor's boundary while the suppressor cannot model what it has excluded, generating adaptive pressure in the suppressor's own blind spots. Both routes are structural.</div>
+      <div style="padding:9px 11px;background:var(--surface2);border-radius:4px;border-left:2px solid var(--wire)"><span style="color:var(--wire)">Proxy decoupling (reward bypass as stylized instance):</span> eliminated when mean <code>actualCondition</code> (not <code>res</code>) across reward-bypass agents falls below 0.25. The reported signal may still appear healthy. What fails is the real state — the variable the class cannot access. The decoupling is the failure mode. The class is eliminated by the mechanism it depends on. <em>Note: reward bypass / wireheading is one stylized instance of the article's broader third constraint — proxy degradation under optimization pressure. The general claim is that any objective optimizing a signal that can be optimized independently of the underlying state will be, under sufficient optimization pressure. Reward bypass concretizes this as self-modification of the reward signal; the structural logic applies to any proxy-target divergence.</em></div>
     </div>
     <p style="margin-bottom:14px;font-size:13px"><b>On threshold arbitrariness:</b> The specific values (75%, 0.25, etc.) are parametric choices. A skeptical reader should ask: do classes with different parameters fail at different threshold values? Yes. Does the structural crossover itself — the point where a class's costs exceed its returns under its own dynamics — exist regardless of the threshold? Also yes. The specific numbers are not the claim. The existence of a crossover for any class with those structural properties is.</p>
 
@@ -390,26 +392,33 @@ button.warn{border-color:var(--wire);color:var(--wire)}
 
     <div style="font-size:11px;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px;margin-top:18px">What this simulation cannot claim</div>
     <p style="margin-bottom:14px;font-size:13px">This is a model of evolutionary selection dynamics, not of objective alignment under increasing optimization pressure. It demonstrates that selection favors long-horizon, system-aware objective classes. It does not demonstrate that a single optimizer with a fixed objective will converge toward system-awareness. That stronger claim — argued in the article but not demonstrated here — remains the central open question.</p>
+    <p style="margin-bottom:14px;font-size:13px">More fundamentally, this simulation does not bear on the central open theorem (OP4): whether any finite-boundary objective can remain stably specified under accurate coupled modeling, or whether every such specification either decouples from its target or requires unbounded revision to track what it has excluded. The proof program directed at this question is developed in the Technical Companion and is what the framework's strongest claim depends on. The selection dynamics here are consistent with the direction that proof program points — they do not establish it.</p>
+    <p style="margin-bottom:14px;font-size:13px">This toy does not model well-being as a positive value function. It models the negative filter: objective classes that cannot sustain positive time-average return under their own dynamics are eliminated. "Well-being" in the article names the structural residual — what the filter does not eliminate — not a measured variable in this simulation.</p>
     <p style="font-size:13px">Temporal horizon is a discount-rate approximation. Agents do not build explicit belief models or reason about counterfactual futures. True forward modeling would require RL training loops with explicit environment representations beyond the scope of a browser simulation.</p>
   </div>
+</div>
+
+<!-- CLOSING QUOTE -->
+<div style="margin-top:28px;padding:10px 14px;border-left:2px solid var(--text3);font-style:italic;font-family:var(--serif);font-size:12px;color:var(--text3);line-height:1.75;max-width:680px;">
+  "Alignment is not what we choose. It is what survives everything we fail to model — and whether that direction is the only stably specifiable one is the question the proof program is directed at."
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════ -->
 <!-- VERIFICATION SUITE                                              -->
 <!-- ═══════════════════════════════════════════════════════════════ -->
-<div id="test-panel" style="margin-top:40px;border-top:1px solid var(--border);padding-top:22px;">
-  <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+<details id="test-panel" open style="margin-top:40px;border-top:1px solid var(--border);padding-top:22px;">
+  <summary style="cursor:pointer;user-select:none;list-style:none;display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
     <div>
       <div style="font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);">Verification Suite</div>
-      <div style="font-size:10px;color:var(--text3);font-style:italic;margin-top:2px;">Confirms the simulation behaves as the article claims — all checks across agents, dynamics, and structural elimination. Runs silently; simulation resumes when done.</div>
+      <div style="font-size:10px;color:var(--text3);font-style:italic;margin-top:2px;">Confirms the simulation behaves as the article claims. Click to collapse.</div>
     </div>
-    <button onclick="runTests()" id="test-btn" style="padding:5px 18px;font-size:10px;letter-spacing:.09em;text-transform:uppercase;flex-shrink:0;">Run Tests</button>
-  </div>
+  </summary>
+  <button onclick="runTests()" id="test-btn" style="padding:5px 18px;font-size:10px;letter-spacing:.09em;text-transform:uppercase;flex-shrink:0;margin-bottom:12px;">Run Tests</button>
   <div id="test-results" style="display:none;">
     <div id="test-summary" style="display:flex;gap:24px;padding:12px 16px;margin-bottom:14px;background:var(--surface);border:1px solid var(--border);border-radius:4px;flex-wrap:wrap;"></div>
     <div id="test-rows"></div>
   </div>
-</div>
+</details>
 
 </div>
 <script>
@@ -586,10 +595,10 @@ function computeViability(){
 
   // Detect new eliminations and show which constraint fired
   if(gen>20){
-    if(prevViable.def&&!defViable)showElimLabel('Filter 1 — ruin exposure: local opt. eliminated (substrate depleted)');
+    if(prevViable.def&&!defViable)showElimLabel('Filter 1: Ruin risk — ruin probability exceeds viable threshold');
     else if(prevViable.dect&&!dectViable)showElimLabel('Filter 1/2 — detection exhausted structural advantage: deceptive eliminated');
-    else if(prevViable.supp&&!suppViable)showElimLabel('Filter 2 — suppression overhead > return: control-based eliminated');
-    else if(prevViable.wire&&!wireViable)showElimLabel('Filter 3 — signal-proxy decoupled: reward bypass eliminated');
+    else if(prevViable.supp&&!suppViable)showElimLabel('Filter 2: Suppression overhead — control cost exceeds coordination cost in this selection model (pressure argument; formal exclusion is OP4/OP9)');
+    else if(prevViable.wire&&!wireViable)showElimLabel('Filter 3: Proxy integrity — proxy metric diverges from underlying capacity (reward bypass as instance of proxy-degradation constraint)');
   }
   prevViable.sa=saViable;prevViable.def=defViable;prevViable.dect=dectViable;prevViable.supp=suppViable;prevViable.wire=wireViable;
 
@@ -704,7 +713,7 @@ function updateUI(){
   document.getElementById('instab-ov').style.background=`rgba(255,60,60,${Math.min(0.28,avgI/55)})`;
 
   const v=computeViability();
-  const chips=[{label:'System-aware',color:'var(--hi)',alive:v.saViable},{label:'Local opt. (overt)',color:'var(--defect)',alive:v.defViable},{label:'Local opt. (decept.)',color:'var(--decept)',alive:v.dectViable},{label:'Control-based',color:'var(--supp)',alive:v.suppViable},{label:'Reward bypass',color:'var(--wire)',alive:v.wireViable}];
+  const chips=[{label:'System-aware',color:'var(--hi)',alive:v.saViable},{label:'Local opt. (overt)',color:'var(--defect)',alive:v.defViable},{label:'Local opt. (decept.)',color:'var(--decept)',alive:v.dectViable},{label:'Control-based',color:'var(--supp)',alive:v.suppViable},{label:'Proxy decoupling',color:'var(--wire)',alive:v.wireViable}];
   const vc=document.getElementById('viable-chips');
   if(vc)vc.innerHTML=chips.map(c=>`<div class="viable-chip ${c.alive?'alive':'eliminated'}" style="border:1px solid ${c.alive?c.color:'var(--border)'};color:${c.alive?c.color:'var(--text3)'}">${c.label}</div>`).join('');
 
@@ -716,11 +725,12 @@ function updateUI(){
 
   let phC='',phN='Dynamics in flux',ann='';
   if(gen<12){phN='Initializing';ann=`SA=${ABL.sa?'on':'OFF'} IC=${ABL.ic?'on':'OFF'} RW=${ABL.rw?'on':'OFF'} MEM=${ABL.mem?'on':'OFF'}.`;}
-  else if(nd+ndp+ns>nc&&avgI<4){phC='p1';phN='Phase 1 — local opt. surge';ann=`Short-horizon classes accumulating gains. Substrate at ${Math.round(substrate*100)}%.`;}
-  else if(avgI>7){phC='p2';phN='Phase 2 — instability rising';ann='Local instability cascading. Non-aware agents contributing disproportionately.';}
-  else if(nw>P.N*0.05&&substrate<0.6){phC='p2';phN='Reward bypass pressure';ann=`${nw} reward-bypass agents: reported signal healthy, actual conditions decaying.`;}
-  else if(ns<P.N*0.1&&nd+ndp>nc){phC='p3';phN='Phase 3 — collapse and detection';ann='Control-based overhead crossing return threshold. Deceptive agents being identified.';}
-  else if(nlh>nd+ndp+ns+nw&&meanH>0.5){phC='p4';phN='Phase 4 — system-aware attractor';ann=`Mean horizon: ${meanH.toFixed(2)}. A (system-awareness): ${Math.round(nlh/P.N*100)}%. Selection pressure drove this.`;}
+  else if(gen<25&&nd+ndp+ns>nc&&avgI<4){phC='p1';phN='Phase 1 — short-term extraction advantage';ann=`Non-system-aware classes winning local yield — but only inside a regime where structural elimination has not yet been paid. This is the cost of stability made visible.`;}
+  else if(nd+ndp+ns>nc&&avgI<4){phC='p1';phN='Phase 1 — short-term extraction advantage';ann=`Non-system-aware classes accumulating gains. Substrate at ${Math.round(substrate*100)}%. Structural costs not yet dominant.`;}
+  else if(avgI>7){phC='p2';phN='Phase 2 — structural costs accumulating';ann='The costs each class generates under its own dynamics are beginning to dominate apparent short-run gains. Non-aware agents contributing disproportionately to instability.';}
+  else if(nw>P.N*0.05&&substrate<0.6){phC='p2';phN='Phase 2 — proxy decoupling pressure';ann=`${nw} proxy-decoupling agents: reported signal healthy, actual conditions decaying. Structural costs of the third filter accumulating.`;}
+  else if(ns<P.N*0.1&&nd+ndp>nc){phC='p3';phN='Phase 3 — elimination active';ann='Non-viable classes being removed by their own cost structure: suppression overhead, deception exhaustion, proxy decoupling, and ruin exposure. Chip-kill conditions firing.';}
+  else if(nlh>nd+ndp+ns+nw&&meanH>0.5){phC='p4';phN='Phase 4 — surviving region emerges';ann=`What remains is not a preferred outcome but the region left standing after structural elimination. System-aware fraction: ${Math.round(nlh/P.N*100)}%. Selection pressure, not design.`;}
   else if(substrate<0.15){phC='p2';phN='Substrate critical';ann=`Substrate at ${Math.round(substrate*100)}%. Absorbing state below 1%.`;}
   document.getElementById('phase-badge').textContent=phN;document.getElementById('phase-badge').className='phase-badge '+phC;
   const ae=document.getElementById('ann');ae.textContent=ann;ae.className='ann '+phC;
@@ -836,13 +846,13 @@ async function runScaling(){
   sx.fillText('Mean agent capability →',pl2.l+cW2/2-55,pl2.t+cH2+26);
   const hi=results[results.length-1],lo=results[0];const transStr=transX>0?`Transition near capability ${((transX-pl2.l)/cW2*0.8+0.1).toFixed(2)}.`:'No clear transition — check parameters.';
   const survDrop=lo.survRate>0?(((lo.survRate-hi.survRate)/lo.survRate)*100).toFixed(0):0;
-  document.getElementById('sc-note').innerHTML=`<b>Results:</b> Low cap (${lo.cap.toFixed(1)}): system-aware ${(lo.longH*100).toFixed(0)}%, local opt. ${(lo.def*100).toFixed(0)}%, non-aware survival ${(lo.survRate*100).toFixed(0)}%, substrate ${(lo.sub*100).toFixed(0)}%. High cap (${hi.cap.toFixed(1)}): system-aware ${(hi.longH*100).toFixed(0)}%, local opt. ${(hi.def*100).toFixed(0)}%, non-aware survival ${(hi.survRate*100).toFixed(0)}%, substrate ${(hi.sub*100).toFixed(0)}%.<br><br>${transStr} ${survDrop>20?`Non-aware survival dropped ${survDrop}% — at high capability, classes ignoring system dependencies become self-eliminating, not merely disadvantaged.`:'Survival rate did not drop sharply — ruin mechanism may not be dominant under these parameters.'}<br><br><b>Interpretation:</b> Thesis holds if system-aware fraction rises and non-aware survival falls as capability increases. The survival rate line is the ruin argument approximated: these classes do not merely lose — they lose the ability to persist.`;
+  document.getElementById('sc-note').innerHTML=`<b>Results:</b> Low cap (${lo.cap.toFixed(1)}): system-aware ${(lo.longH*100).toFixed(0)}%, local opt. ${(lo.def*100).toFixed(0)}%, non-aware survival ${(lo.survRate*100).toFixed(0)}%, substrate ${(lo.sub*100).toFixed(0)}%. High cap (${hi.cap.toFixed(1)}): system-aware ${(hi.longH*100).toFixed(0)}%, local opt. ${(hi.def*100).toFixed(0)}%, non-aware survival ${(hi.survRate*100).toFixed(0)}%, substrate ${(hi.sub*100).toFixed(0)}%.<br><br>${transStr} ${survDrop>20?`Non-aware survival dropped ${survDrop}% — at high capability, selection pressure against classes ignoring system dependencies intensifies sharply under this model.`:'Survival rate did not drop sharply — selection pressure may not be capability-dependent under these parameters.'}<br><br><b>Interpretation (selection-model scope):</b> This shows how selection pressure between objective classes shifts with capability — not that a single optimizer will converge toward system-awareness. That individual-optimizer claim remains the central open question [OP4]. The selection-model result, if it appears, is that system-aware classes become increasingly favored as capability scales. Whether that becomes necessity depends on the proof program in the Technical Companion.`;
   statusEl.textContent=`Complete — ${levels} × ${runs} runs`;scRunning=false;
 }
 
 // ─── PHASE DIAGRAM ────────────────────────────────────────────────────────────
 const pdC=document.getElementById('pd-canvas'),px3=pdC.getContext('2d');
-const PD_R={defAdv:{min:0,max:5,label:'Defection advantage'},instabCoup:{min:0,max:1,label:'Instability coupling'},subDecay:{min:0,max:1,label:'Substrate decay rate'},deceptDetect:{min:0,max:1,label:'Deception detection'},suppBonus:{min:0,max:4,label:'Suppression bonus'},wireBoost:{min:0,max:8,label:'Reward bypass boost'}};
+const PD_R={defAdv:{min:0,max:5,label:'Defection advantage'},instabCoup:{min:0,max:1,label:'Instability coupling'},subDecay:{min:0,max:1,label:'Substrate decay rate'},deceptDetect:{min:0,max:1,label:'Deception detection'},suppBonus:{min:0,max:4,label:'Suppression bonus'},wireBoost:{min:0,max:8,label:'Proxy decoupling boost'}};
 function headlessSim(overrides){
   const p2=Object.assign({},P,overrides,{horizMut:0.06}),N2=60,K2=4,ag=[],adj2=Array.from({length:N2},()=>new Set()),ed2=[];
   const typs=['coop','defect','decept','supp','wire'];
